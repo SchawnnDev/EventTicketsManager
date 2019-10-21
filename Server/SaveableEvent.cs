@@ -44,5 +44,7 @@ namespace Server
 
 		public DateTime End { get; set; }
 
+		public SaveableAccount Account { get; set; }
+
 	}
 }
