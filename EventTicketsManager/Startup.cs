@@ -8,18 +8,22 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
-using EventTicketsManager.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Server;
 
 namespace EventTicketsManager
 {
     public class Startup
     {
+
+        public static string ConnectionString { get; private set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            ConnectionString = Configuration.GetConnectionString("ServerConnection");
         }
 
         public IConfiguration Configuration { get; }
@@ -27,11 +31,11 @@ namespace EventTicketsManager
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<ServerContext>(options =>
                 options.UseNpgsql(
                     Configuration.GetConnectionString("ServerConnection")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ServerContext>();
             services.AddControllersWithViews();
            services.AddRazorPages();
         }

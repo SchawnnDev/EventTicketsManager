@@ -9,9 +9,14 @@ namespace Server
 	public class ServerContext : IdentityDbContext<IdentityUser>
     {
 
+        private static DbContextOptions Options { get; set; }
+
+        public ServerContext() : base(Options) { }
+
         public ServerContext(DbContextOptions options) : base(options)
         {
-		}
+            Options = options;
+        }
         
 		public DbSet<SaveableEvent> Events { get; set; }
 

@@ -47,5 +47,7 @@ namespace Server
 
         public IdentityUser Creator { get; set; }
 
+        [NotMapped] public bool IsCreator { get; set; } = true;
+
     }
 }

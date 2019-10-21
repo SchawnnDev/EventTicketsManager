@@ -2,34 +2,45 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Server;
 
 namespace EventTicketsManager.Controllers
 {
+    [Authorize]
     public class EventController : Controller
     {
+        private readonly UserManager<IdentityUser> _userManager;
+
+        public EventController(UserManager<IdentityUser> userManager)
+        {
+            _userManager = userManager;
+        }
+
         // GET: Event
         public ActionResult Index()
         {
-            return View(new List<SaveableEvent>()
+
+           var events = new List<SaveableEvent>();
+           var userId = _userManager.GetUserId(User);
+
+            using (var db = new ServerContext())
             {
-				new SaveableEvent
-				{
-					AddressName = "Avenue Foch",
-					AddressNumber = "14",
-					ApiKey = "testoff",
-					CityName = "Rosheim",
-					Email = "contact@schawnndev.fr",
-					EmailContent = "Hello!",
-					Enabled = true,
-					Start = DateTime.Now,
-					End = DateTime.Now.AddDays(1),
-					EnterPrice = 10,
-					Id = 1
-				}
-            });
+                events.AddRange(db.Events.Where(t=>t.Creator.Id == userId).ToList());
+
+                var list = db.EventUsers.Where(t => events.All(e => e.Id != t.Event.Id) && t.User.Id == userId)
+                    .Select(t => t.Event).ToList();
+
+                foreach (var saveableEvent in list)
+                    saveableEvent.IsCreator = false;
+
+                events.AddRange(list);
+            }
+
+            return View(events);
         }
 
         // GET: Event/Details/5
