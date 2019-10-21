@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 
 namespace Server
 {
@@ -44,7 +45,7 @@ namespace Server
 
 		public DateTime End { get; set; }
 
-		public SaveableAccount Account { get; set; }
+        public IdentityUser Creator { get; set; }
 
-	}
+    }
 }

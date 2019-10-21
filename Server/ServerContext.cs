@@ -1,29 +1,36 @@
 ﻿using System;
-using System.Data.Entity;
+using System.Configuration;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Server
 {
-	public class ServerContext : DbContext
-	{
+	public class ServerContext : IdentityDbContext<IdentityUser>
+    {
 
-		public ServerContext() : base("Server")
-		{
-			Configuration.LazyLoadingEnabled = false;
+        public ServerContext(DbContextOptions options) : base(options)
+        {
 		}
+        
+		public DbSet<SaveableEvent> Events { get; set; }
 
-		public DbSet<SaveableUser> Users { get; set; }
+        public DbSet<SaveableEventUser> EventUsers { get; set; }
 
-		public DbSet<SaveableAccount> Accounts { get; set; }
+        public DbSet<SaveableTicket> Tickets { get; set; }
 
+        public DbSet<SaveableTicketScan> TicketScans { get; set; }
 
-		protected override void OnModelCreating(DbModelBuilder modelBuilder)
-		{
-			modelBuilder.HasDefaultSchema("public");
+        public DbSet<SaveableTicketUserMail> TicketUserMails { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.HasDefaultSchema("public");
 			/* modelBuilder.Entity<SaveableOperation>()
 				.HasOptional(a => a.Invoice)
 				.WithOptionalDependent()
 				.WillCascadeOnDelete(true); */
-			base.OnModelCreating(modelBuilder);
+			base.OnModelCreating(builder);
 		}
 	}
 }
