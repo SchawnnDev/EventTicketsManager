@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Server
 {
+	[Table("Events")]
 	public class SaveableEvent
 	{
 
