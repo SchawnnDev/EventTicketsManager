@@ -10,7 +10,7 @@
         overflow-y: auto;
         height: 350px; */
         position: relative;
-        height: 350px;
+        max-height: 350px;
         overflow: auto;
         display: block;
     }
@@ -19,7 +19,7 @@
 <h1>Details of @Model.Event.Name</h1>
 
 <div>
-    <h4>Manage your event.</h4>
+    <h4>Manage your event and collaborators.</h4>
     <hr/>
 </div>
 
@@ -28,55 +28,106 @@
     <div class="row">
 
         <div class="col-md-6">
+            
+            <h6>Informations</h6>
+            
+            <table class="table table-bordered table-striped mb-0">
 
-            <img src="@Model.Event.HeaderUrl" class="img-fluid rounded" style="height: 50%; display: block; margin-left: auto; margin-right: auto;"alt=""/>
+                <tbody>
+                <tr>
+                    <td>Header</td>
+                    <td><img src="@Model.Event.HeaderUrl" class="img-fluid rounded" style="height: 75%;" alt="" /></td>
+                </tr>
+                <tr>
+                    <td>Ticket Price</td>
+                    <td>@Model.Event.EnterPrice€</td>
+                </tr>
+                <tr>
+                    <td>Tickets Created</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td>Tickets Mail Sent</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td>Tickets Scanned</td>
+                    <td>0</td>
+                </tr>
+                </tbody>
+            </table>
+
+            
 
         </div>
 
         <div class="col-md-6">
+
+            <h6>Manage collaborators</h6>
+
             <div class="tableFixHead">
                 <table class="table table-bordered table-striped mb-0">
                     <thead>
-                    <tr>
-                        <th>
-                            N°
-                        </th>
-                        <th>
-                            Email
-                        </th>
-                        <th>
-                            Actions
-                        </th>
-                    </tr>
+                        <tr>
+                            <th>
+                                N°
+                            </th>
+                            <th>
+                                Email
+                            </th>
+                            <th>
+                                Actions
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
 
 
-                    @foreach (var item in Model.EventUsers)
-                    {
-                        <tr>
-                            <td>
-                                @(i++)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Email)
-                            </td>
+                        @foreach (var item in Model.EventUsers)
+                        {
+                            <tr>
+                                <td>
+                                    @(i++)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Email)
+                                </td>
 
-                            <td>
-                                @Html.ActionLink("Delete", "DeleteEventUser", new {id = item.EventUser.Id}, new {@class = "btn btn-danger", @onclick = "onclick=\"return confirm('Do you really want to delete this user from the project?')\""})
-                            </td>
-                        </tr>
-                    }
+                                <td>
+                                    <form asp-action="DeleteEventUser">
+                                        <input type="number" hidden="hidden" name="Id" value="@item.EventUser.Id" />
+                                        <input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
+                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Do you really want to delete this user from the project?')">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
-            
-            <form asp-action="AddEventUser" >
+
+            <form asp-action="AddEventUser">
                 <div class="input-group mb-3">
-                    <input type="email" class="form-control" placeholder="User Email" aria-label="User Email" aria-describedby="button-addon2" name="Email" required>
-                    <input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id"/>
+                    <input type="email" class="form-control" placeholder="Collaborator Email" aria-label="Collaborator Email" aria-describedby="button-addon2" name="Email" required>
+                    <input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Add</button>
+                    </div>
+                </div>
+            </form>
+
+            <br />
+
+            <h6>Manage API Key</h6>
+
+            <br />
+
+            <form asp-action="RenewApiKey">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Collaborator Email" aria-label="Collaborator Email" aria-describedby="button-addon3" name="ApiKey" disabled="disabled" required>
+                    <input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon3" onclick="return confirm('Do you really want to renew the projects API Key?')">Renew</button>
                     </div>
                 </div>
             </form>
@@ -86,6 +137,8 @@
     </div>
 
 </div>
+
+<br/>
 
 <div>
     <a class="btn btn-info btn-lg" asp-action="Index">Back to List</a>

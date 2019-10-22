@@ -68,7 +68,7 @@ namespace EventTicketsManager.Controllers
         // GET: Event/Create
         public ActionResult Create()
         {
-            return View();
+            return View(new SaveableEvent{Start = DateTime.Now, End = DateTime.Now.AddDays(1)});
         }
 
         // POST: Event/Create
@@ -205,7 +205,11 @@ namespace EventTicketsManager.Controllers
         // GET: Event/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            /*
+            using var db = new ServerContext();
+            return View(db.Events.Single(t => t.Id == id)); */
+
+            return Details(id);
         }
 
         // POST: Event/Delete/5
@@ -228,9 +232,50 @@ namespace EventTicketsManager.Controllers
         // POST: Event/DeleteEventUser/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteEventUser(int id)
+        public ActionResult DeleteEventUser(IFormCollection collection)
         {
-            return View("Index");
+            var eventId = 0;
+            int id;
+
+            try
+            {
+                using var db = new ServerContext();
+
+                if (collection.TryGetValue("Id", out var aId))
+                {
+                    if (!string.IsNullOrWhiteSpace(aId) && int.TryParse(aId, out var eId))
+                        id = eId;
+                    else
+                        return Index();
+                }
+                else return Index();
+
+                if (collection.TryGetValue("EventId", out var strId))
+                {
+                    if (!string.IsNullOrWhiteSpace(strId) && int.TryParse(strId, out var eId))
+                        eventId = eId;
+                    else
+                        return Index();
+                }
+                else return Index();
+
+                if (!db.Events.Any(t => t.Id == eventId && t.CreatorId == _userManager.GetUserId(User)) ||
+                    !db.EventUsers.Any(t => t.Id == id && t.Event.Id == eventId))
+                    return Details(eventId);
+
+                var user = db.EventUsers.Single(t => t.Id == id);
+
+                if (user == null) return Details(eventId);
+
+                db.Remove(user);
+                db.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                return Details(eventId);
+            }
+
+            return Details(eventId);
         }
 
         [HttpPost]
@@ -290,6 +335,42 @@ namespace EventTicketsManager.Controllers
             catch (Exception e)
             {
                 return Details(id);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RenewApiKey(IFormCollection collection)
+        {
+            var eventId = 0;
+
+            try
+            {
+                using var db = new ServerContext();
+
+                if (collection.TryGetValue("EventId", out var strId))
+                {
+                    if (!string.IsNullOrWhiteSpace(strId) && int.TryParse(strId, out var id))
+                        eventId = id;
+                    else
+                        return Index();
+                }
+                else return Index();
+
+                if (!db.Events.Any(t => t.Id == eventId && t.CreatorId == _userManager.GetUserId(User)))
+                    return Details(eventId);
+
+                var saveableEvent = db.Events.Single(t => t.Id == eventId);
+
+                saveableEvent.ApiKey = "new";
+
+                db.SaveChanges();
+
+                return Details(eventId);
+            }
+            catch (Exception e)
+            {
+                return Details(eventId);
             }
         }
     }
