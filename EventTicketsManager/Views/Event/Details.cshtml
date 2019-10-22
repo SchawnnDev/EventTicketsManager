@@ -123,12 +123,15 @@
             <br />
 
             <form asp-action="RenewApiKey">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Collaborator Email" aria-label="Collaborator Email" aria-describedby="button-addon3" name="ApiKey" disabled="disabled" required>
+                <div class="input-group">
+                    <input type="text" value="@(Model.Event.ApiKey ?? "")" class="form-control" placeholder="API Key" aria-label="API Key" id="apiKey" disabled="disabled" required>
                     <input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
+                    
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="submit" id="button-addon3" onclick="return confirm('Do you really want to renew the projects API Key?')">Renew</button>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyApiKey()">Copy</button>
+                        <button class="btn btn-outline-secondary" type="submit" onclick="return confirm('Do you really want to renew the projects API Key?')">Renew</button>
                     </div>
+
                 </div>
             </form>
 
@@ -148,4 +151,24 @@
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    
+    
+    <script type="text/javascript">
+
+        function copyApiKey() {
+            /* Get the text field */
+            var copyText = document.getElementById("apiKey");
+
+            /* Select the text field */
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+
+            /* Copy the text inside the text field */
+            document.execCommand("copy");
+
+            /* Alert the copied text */
+            alert("Api Key copied!");
+        }
+
+    </script>
 }

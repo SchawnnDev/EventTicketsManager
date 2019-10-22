@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using EventTicketsManager.Models;
+using Library.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -112,6 +113,7 @@ namespace EventTicketsManager.Controllers
                 saveableEvent.CreatorId = _userManager.GetUserId(User);
                 saveableEvent.CreatedAt = DateTime.Now;
                 saveableEvent.UpdatedAt = DateTime.Now;
+                saveableEvent.ApiKey = new KeyGenerator(saveableEvent).GenerateNewKey();
 
                 using (var db = new ServerContext())
                 {
@@ -362,7 +364,7 @@ namespace EventTicketsManager.Controllers
 
                 var saveableEvent = db.Events.Single(t => t.Id == eventId);
 
-                saveableEvent.ApiKey = "new";
+                saveableEvent.ApiKey = new KeyGenerator(saveableEvent).GenerateNewKey();
 
                 db.SaveChanges();
 
