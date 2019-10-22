@@ -14,15 +14,12 @@ namespace Server
 		{
 		}
 
-		public SaveableTicket(string firstName, string lastName, string email,
-			DateTime lastConnection, DateTime creationDate)
+		public SaveableTicket(string firstName, string lastName, string email)
 		{
 			FirstName = firstName;
 			LastName = lastName;
 			Email = email;
-			LastConnection = lastConnection;
-			CreationDate = creationDate;
-		}
+        }
 
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -40,13 +37,13 @@ namespace Server
 
 		public bool Sex { get; set; }
 
-		public DateTime LastConnection { get; set; }
+        public SaveableEvent Event { get; set; }
 
-		public DateTime CreationDate { get; set; }
+        public string CreatorId { get; set; }
 
-		public SaveableEvent Event { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
-        public IdentityUser Creator { get; set; }
+        public DateTime CreatedAt { get; set; }
 
-	}
+    }
 }

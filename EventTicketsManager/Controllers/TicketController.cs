@@ -19,14 +19,12 @@ namespace EventTicketsManager.Controllers
             {
 				new SaveableTicket
                 {
-					CreationDate = DateTime.Now,
 					Email = "iperskill@gmail.com",
 					FirstName = "Paul",
 					LastName = "Meyer",
 					Event = null,
 					HasPaid =  false,
 					Id = 1,
-					LastConnection = DateTime.Now,
 					Sex = true
 				}
             });

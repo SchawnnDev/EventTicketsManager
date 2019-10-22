@@ -16,7 +16,7 @@ namespace Server
 
         public SaveableEvent Event { get; set; }
 
-        public IdentityUser User { get; set; }
+        public string UserId { get; set; }
 
     }
 }

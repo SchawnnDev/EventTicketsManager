@@ -45,7 +45,11 @@ namespace Server
 
 		public DateTime End { get; set; }
 
-        public IdentityUser Creator { get; set; }
+        public string CreatorId { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
+
+        public DateTime CreatedAt { get; set; }
 
         [NotMapped] public bool IsCreator { get; set; } = true;
 
