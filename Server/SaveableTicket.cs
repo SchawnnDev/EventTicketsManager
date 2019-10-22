@@ -45,5 +45,7 @@ namespace Server
 
         public DateTime CreatedAt { get; set; }
 
+        [NotMapped] public int TicketEventId { get; set; }
+
     }
 }

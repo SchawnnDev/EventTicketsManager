@@ -55,6 +55,7 @@ namespace EventTicketsManager.Controllers
 
             using (var db = new ServerContext())
             {
+
                 if (db.Events.Any(t => t.Id == id))
                     model.Event = db.Events.Find(id);
                 model.EventUsers = new List<EventUserModel>(db.EventUsers.Where(t => t.Event.Id == id).ToList()

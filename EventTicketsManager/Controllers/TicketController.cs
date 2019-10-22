@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EventTicketsManager.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Server;
 
@@ -12,22 +14,37 @@ namespace EventTicketsManager.Controllers
     [Authorize]
     public class TicketController : Controller
     {
+        private readonly UserManager<IdentityUser> _userManager;
+
+        public TicketController(UserManager<IdentityUser> userManager)
+        {
+            _userManager = userManager;
+        }
+
         // GET: User
         public ActionResult Index()
         {
-            return View(new List<SaveableTicket>
+            var events = new List<SaveableEvent>();
+            var userId = _userManager.GetUserId(User);
+
+            using (var db = new ServerContext())
             {
-				new SaveableTicket
+                events.AddRange(db.Events.Where(t => t.CreatorId == userId).ToList());
+
+                var list = db.EventUsers.Where(t => t.UserId == userId)
+                    .Select(t => t.Event).ToList();
+
+                foreach (var saveableEvent in list)
                 {
-					Email = "iperskill@gmail.com",
-					FirstName = "Paul",
-					LastName = "Meyer",
-					Event = null,
-					HasPaid =  false,
-					Id = 1,
-					Sex = true
-				}
-            });
+                    saveableEvent.IsCreator = false;
+
+                    if (events.All(t => t.Id != saveableEvent.Id))
+                        events.Add(saveableEvent);
+                }
+            }
+
+
+            return View("Index", new TicketIndexModel(events));
         }
 
         // GET: User/Details/5
@@ -37,9 +54,9 @@ namespace EventTicketsManager.Controllers
         }
 
         // GET: User/Create
-        public ActionResult Create()
+        public ActionResult Create(int id)
         {
-            return View();
+            return View(new SaveableTicket {TicketEventId = id});
         }
 
         // POST: User/Create
@@ -103,6 +120,21 @@ namespace EventTicketsManager.Controllers
             {
                 return View();
             }
+        }
+
+        public ActionResult List(int id)
+        {
+            var list = new List<SaveableTicket>();
+
+            using (var db = new ServerContext())
+                list.AddRange(db.Tickets.Where(t => t.Event.Id == id).ToList());
+
+            return View(list);
+        }
+
+        public ActionResult Search(int id)
+        {
+            return View();
         }
     }
 }

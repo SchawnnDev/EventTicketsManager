@@ -1,71 +1,43 @@
-﻿@model IEnumerable<Server.SaveableTicket>
+﻿@model TicketIndexModel
 
 @{
     ViewData["Title"] = "Index";
+    var i = 0;
 }
 
-<h1>Index</h1>
+    <h1>Your events</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <h4>Select your event to create or see tickets.</h4>
+    <hr/>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FirstName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ToPay)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HasPaid)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sex)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ToPay)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.HasPaid)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sex)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
+
+@foreach (var item in Model.UserEvents)
+{
+    if (i % 5 == 0)
+    {
+        @Html.Raw(" <div class='card-group'>")
+    }
+
+
+    <div class="card text-white bg-dark mb-3" style="width: 20rem; margin: 5px;">
+        <div class="card-header">@item.Name</div>
+        <div class="card-body">
+            @Html.ActionLink("Add Ticket", "Create", new { id = item.Id }, new { @class = "btn btn-light btn-lg btn-block" })
+            @Html.ActionLink("See Tickets", "List", new { id = item.Id }, new { @class = "btn btn-light btn-lg btn-block" })
+            @Html.ActionLink("Search Tickets", "Search", new { id = item.Id }, new { @class = "btn btn-light btn-lg btn-block" })
+        </div>
+
+    </div>
+
+    if (i % 5 == 4)
+    {
+        @Html.Raw("</div>")
+    }
+    i++;
 }
-    </tbody>
-</table>
+
+@if (i % 5 != 0)
+{
+    @Html.Raw("</div>")
+}
