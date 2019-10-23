@@ -56,7 +56,14 @@ namespace EventTicketsManager.Controllers
         // GET: User/Create
         public ActionResult Create(int id)
         {
-            return View(new SaveableTicket {TicketEventId = id});
+            decimal toPay;
+            using (var db = new ServerContext())
+            {
+                if (!db.Events.Any(t => t.Id == id)) return View("Index");
+                toPay = db.Events.Where(t => t.Id == id).Select(t => t.EnterPrice).Single();
+            }
+
+            return View(new SaveableTicket {TicketEventId = id, ToPay = toPay});
         }
 
         // POST: User/Create
@@ -67,6 +74,11 @@ namespace EventTicketsManager.Controllers
             try
             {
                 // TODO: Add insert logic here
+
+                var test = collection;
+
+                var test2 = collection;
+                
 
                 return RedirectToAction(nameof(Index));
             }

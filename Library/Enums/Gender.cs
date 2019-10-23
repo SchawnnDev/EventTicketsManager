@@ -9,7 +9,7 @@ namespace Library.Enums
 
 		Male = 0,
 		Female = 1,
-		Diverse = 2
+		Diverse = 2,
 
 	}
 }

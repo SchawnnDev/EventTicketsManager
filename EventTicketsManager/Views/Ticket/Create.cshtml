@@ -2,7 +2,11 @@
 @model Server.SaveableTicket
 
 @{
-	ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create";
+}
+
+@section Styles {
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 }
 
 <h1>Create</h1>
@@ -10,72 +14,86 @@
 <h4>SaveableTicket</h4>
 <hr/>
 <form asp-action="Create">
-	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-	<div class="row">
-		<div class="col">
-			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-			<div class="form-group">
-				<label asp-for="FirstName" class="control-label"></label>
-				<input asp-for="FirstName" class="form-control"/>
-				<span asp-validation-for="FirstName" class="text-danger"></span>
-			</div>
-			<div class="form-group">
-				<label asp-for="LastName" class="control-label"></label>
-				<input asp-for="LastName" class="form-control"/>
-				<span asp-validation-for="LastName" class="text-danger"></span>
-			</div>
-		</div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row">
+        <div class="col">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label">First Name</label>
+                <input asp-for="FirstName" class="form-control"/>
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label">Last Name</label>
+                <input asp-for="LastName" class="form-control"/>
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+        </div>
 
-		<div class="col">
-			<div class="form-group">
-				<label asp-for="Email" class="control-label"></label>
-				<input asp-for="Email" class="form-control"/>
-				<span asp-validation-for="Email" class="text-danger"></span>
-			</div>
-			
-			<div class="form-group">
-				<label class="control-label">Gender</label>
-				<select class="form-control" asp-items="@(new SelectList(Enum.GetValues(typeof(Gender))))">
-					
-				</select>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col">
-			<label asp-for="ToPay" class="control-label">To Pay</label>
-			<div class="input-group mb-2">
-				<input type="number" asp-for="ToPay" class="form-control" aria-label="Amount (to the nearest euro)">
-				<div class="input-group-append">
-					<span class="input-group-text">€</span>
-				</div>
-				<span asp-validation-for="ToPay" class="text-danger"></span>
-			</div>
-		</div>
-		<div class="col">			
-			<div class="form-group form-check">
-				<label class="form-check-label">
-					<input class="form-check-input" asp-for="HasPaid"/> @Html.DisplayNameFor(model => model.HasPaid)
-				</label>
-			</div>
-			</div>
-	</div>
-	<div class="row">
-		<div class="col-md-12">
-			<div class="form-group">
-				<input type="submit" value="Create" class="btn btn-primary btn-block"/>
+        <div class="col">
+            <div class="form-group">
+                <label asp-for="Email" type="email" class="control-label"></label>
+                <input asp-for="Email" class="form-control"/>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Gender</label>
+                <select name="Gender" class="form-control">
+                    @foreach (var gender in Enum.GetValues(typeof(Gender)))
+                    {
+                        @Html.Raw($"<option value='{(int)gender}' {((int) gender == Model.Gender ? "selected" : "")}>{gender}</option>")
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label asp-for="ToPay" class="control-label">To Pay</label>
+            <div class="input-group mb-2">
+                <input type="number" asp-for="ToPay" class="form-control" aria-label="Amount (to the nearest euro)">
+                <div class="input-group-append">
+                    <span class="input-group-text">€</span>
+                </div>
+                <span asp-validation-for="ToPay" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label class="control-label">Has Paid</label>
+                <select name="HasPaid" class="form-control">
+                    @if (Model.HasPaid)
+                    {
+                        @Html.Raw("<option value='1' selected>Yes</option>")
+                        @Html.Raw("<option value='0'>No</option>")
+                    }
+                    else
+                    {
+                        @Html.Raw("<option value='0' selected>No</option>")
+                        @Html.Raw("<option value='1' >Yes</option>")
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary btn-block"/>
 
 
-			</div>
-		</div>
-	</div>
+            </div>
+        </div>
+    </div>
 </form>
 
 
 <div>
-	<a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
-	@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }
