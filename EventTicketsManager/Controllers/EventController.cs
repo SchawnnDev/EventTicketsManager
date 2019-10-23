@@ -82,34 +82,7 @@ namespace EventTicketsManager.Controllers
             {
                 var saveableEvent = new SaveableEvent();
 
-                if (collection.TryGetValue("Name", out var name))
-                    saveableEvent.Name = name;
-                if (collection.TryGetValue("AddressName", out var addressName))
-                    saveableEvent.AddressName = addressName;
-                if (collection.TryGetValue("AddressNumber", out var addressNumber))
-                    saveableEvent.AddressNumber = addressNumber;
-                if (collection.TryGetValue("CityName", out var cityName))
-                    saveableEvent.CityName = cityName;
-                if (collection.TryGetValue("PostalCode", out var postalCode))
-                    saveableEvent.PostalCode = postalCode;
-                if (collection.TryGetValue("TelephoneNumber", out var telephoneNumber))
-                    saveableEvent.TelephoneNumber = telephoneNumber;
-                if (collection.TryGetValue("Email", out var email))
-                    saveableEvent.Email = email;
-                if (collection.TryGetValue("LogoUrl", out var logoUrl))
-                    saveableEvent.LogoUrl = logoUrl;
-                if (collection.TryGetValue("HeaderUrl", out var headerUrl))
-                    saveableEvent.HeaderUrl = headerUrl;
-                if (collection.TryGetValue("EmailContent", out var emailContent))
-                    saveableEvent.EmailContent = emailContent;
-                if (collection.TryGetValue("EnterPrice", out var enterPrice))
-                    saveableEvent.EnterPrice = decimal.Parse(enterPrice);
-                if (collection.TryGetValue("Start", out var start))
-                    saveableEvent.Start = DateTime.Parse(start);
-                if (collection.TryGetValue("End", out var end))
-                    saveableEvent.End = DateTime.Parse(end);
-                if (collection.TryGetValue("Enabled", out var enabled))
-                    saveableEvent.Enabled = bool.Parse(enabled.ToString().Split(",")[0]);
+                FillEvent(saveableEvent, collection);
 
                 saveableEvent.CreatorId = _userManager.GetUserId(User);
                 saveableEvent.CreatedAt = DateTime.Now;
@@ -159,38 +132,10 @@ namespace EventTicketsManager.Controllers
 
                     var saveableEvent = db.Events.Single(t => t.Id == id);
 
-                    if (saveableEvent.CreatorId != _userManager.GetUserId(User)
-                    ) // Check if editor is owner of the event.
+                    if (saveableEvent.CreatorId != _userManager.GetUserId(User)) // Check if editor is owner of the event.
                         return View("Index");
 
-                    if (collection.TryGetValue("Name", out var name))
-                        saveableEvent.Name = name;
-                    if (collection.TryGetValue("AddressName", out var addressName))
-                        saveableEvent.AddressName = addressName;
-                    if (collection.TryGetValue("AddressNumber", out var addressNumber))
-                        saveableEvent.AddressNumber = addressNumber;
-                    if (collection.TryGetValue("CityName", out var cityName))
-                        saveableEvent.CityName = cityName;
-                    if (collection.TryGetValue("PostalCode", out var postalCode))
-                        saveableEvent.PostalCode = postalCode;
-                    if (collection.TryGetValue("TelephoneNumber", out var telephoneNumber))
-                        saveableEvent.TelephoneNumber = telephoneNumber;
-                    if (collection.TryGetValue("Email", out var email))
-                        saveableEvent.Email = email;
-                    if (collection.TryGetValue("LogoUrl", out var logoUrl))
-                        saveableEvent.LogoUrl = logoUrl;
-                    if (collection.TryGetValue("HeaderUrl", out var headerUrl))
-                        saveableEvent.HeaderUrl = headerUrl;
-                    if (collection.TryGetValue("EmailContent", out var emailContent))
-                        saveableEvent.EmailContent = emailContent;
-                    if (collection.TryGetValue("EnterPrice", out var enterPrice))
-                        saveableEvent.EnterPrice = decimal.Parse(enterPrice);
-                    if (collection.TryGetValue("Start", out var start))
-                        saveableEvent.Start = DateTime.Parse(start);
-                    if (collection.TryGetValue("End", out var end))
-                        saveableEvent.End = DateTime.Parse(end);
-                    if (collection.TryGetValue("Enabled", out var enabled))
-                        saveableEvent.Enabled = bool.Parse(enabled.ToString().Split(",")[0]);
+                    FillEvent(saveableEvent, collection);
 
                     saveableEvent.UpdatedAt = DateTime.Now;
 
@@ -203,6 +148,38 @@ namespace EventTicketsManager.Controllers
             {
                 return View("Index");
             }
+        }
+
+        private void FillEvent(SaveableEvent saveableEvent, IFormCollection collection)
+        {
+            if (collection.TryGetValue("Name", out var name))
+                saveableEvent.Name = name;
+            if (collection.TryGetValue("AddressName", out var addressName))
+                saveableEvent.AddressName = addressName;
+            if (collection.TryGetValue("AddressNumber", out var addressNumber))
+                saveableEvent.AddressNumber = addressNumber;
+            if (collection.TryGetValue("CityName", out var cityName))
+                saveableEvent.CityName = cityName;
+            if (collection.TryGetValue("PostalCode", out var postalCode))
+                saveableEvent.PostalCode = postalCode;
+            if (collection.TryGetValue("TelephoneNumber", out var telephoneNumber))
+                saveableEvent.TelephoneNumber = telephoneNumber;
+            if (collection.TryGetValue("Email", out var email))
+                saveableEvent.Email = email;
+            if (collection.TryGetValue("LogoUrl", out var logoUrl))
+                saveableEvent.LogoUrl = logoUrl;
+            if (collection.TryGetValue("HeaderUrl", out var headerUrl))
+                saveableEvent.HeaderUrl = headerUrl;
+            if (collection.TryGetValue("EmailContent", out var emailContent))
+                saveableEvent.EmailContent = emailContent;
+            if (collection.TryGetValue("EnterPrice", out var enterPrice))
+                saveableEvent.EnterPrice = Math.Max(0, decimal.Parse(enterPrice));
+            if (collection.TryGetValue("Start", out var start))
+                saveableEvent.Start = DateTime.Parse(start);
+            if (collection.TryGetValue("End", out var end))
+                saveableEvent.End = DateTime.Parse(end);
+            if (collection.TryGetValue("Enabled", out var enabled))
+                saveableEvent.Enabled = bool.Parse(enabled.ToString().Split(",")[0]);
         }
 
         // GET: Event/Delete/5

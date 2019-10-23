@@ -28,6 +28,8 @@ namespace Server
 
         public DbSet<SaveableTicketUserMail> TicketUserMails { get; set; }
 
+        public DbSet<SaveableLog> Logs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasDefaultSchema("public");

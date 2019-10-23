@@ -52,7 +52,7 @@
         <div class="col">
             <label asp-for="ToPay" class="control-label">To Pay</label>
             <div class="input-group mb-2">
-                <input type="number" asp-for="ToPay" class="form-control" aria-label="Amount (to the nearest euro)">
+                <input type="number" asp-for="ToPay" class="form-control" aria-label="Amount (to the nearest euro)" step="0.5" min="0">
                 <div class="input-group-append">
                     <span class="input-group-text">€</span>
                 </div>

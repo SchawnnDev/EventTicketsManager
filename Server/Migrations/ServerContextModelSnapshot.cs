@@ -304,6 +304,27 @@ namespace Server.Migrations
                     b.ToTable("EventUsers");
                 });
 
+            modelBuilder.Entity("Server.SaveableLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Logs");
+                });
+
             modelBuilder.Entity("Server.SaveableTicket", b =>
                 {
                     b.Property<int>("Id")
@@ -340,6 +361,9 @@ namespace Server.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdaterId")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

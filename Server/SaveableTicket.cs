@@ -41,6 +41,8 @@ namespace Server
 
         public string CreatorId { get; set; }
 
+        public string UpdaterId { get; set; }
+
         public DateTime UpdatedAt { get; set; }
 
         public DateTime CreatedAt { get; set; }
