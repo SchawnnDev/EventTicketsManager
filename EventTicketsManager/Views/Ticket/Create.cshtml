@@ -11,7 +11,7 @@
 
 <h1>Create</h1>
 
-<h4>SaveableTicket</h4>
+<h4>Create an new Ticket.</h4>
 <hr/>
 <form asp-action="Create">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -77,12 +77,13 @@
             </div>
         </div>
     </div>
+    
+    <input type="number" hidden="hidden" name="TicketEventId" value="@Model.TicketEventId" />
+
     <div class="row">
         <div class="col-md-12">
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary btn-block"/>
-
-
             </div>
         </div>
     </div>
@@ -94,6 +95,5 @@
 </div>
 
 @section Scripts {
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

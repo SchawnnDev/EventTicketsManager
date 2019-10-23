@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventTicketsManager.Models;
+using Library.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Server;
 
 namespace EventTicketsManager.Controllers
@@ -50,7 +52,15 @@ namespace EventTicketsManager.Controllers
         // GET: User/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            SaveableTicket model = null;
+
+            using (var db = new ServerContext())
+            {
+                if (DbUtils.IsTicketExisting(id,db))
+                    model = db.Tickets.Find(id);
+            }
+
+            return model != null ? View(model) : View("Index");
         }
 
         // GET: User/Create
@@ -59,7 +69,7 @@ namespace EventTicketsManager.Controllers
             decimal toPay;
             using (var db = new ServerContext())
             {
-                if (!db.Events.Any(t => t.Id == id)) return View("Index");
+                if (!DbUtils.IsEventExisting(id, db)) return View("Index");
                 toPay = db.Events.Where(t => t.Id == id).Select(t => t.EnterPrice).Single();
             }
 
@@ -73,25 +83,56 @@ namespace EventTicketsManager.Controllers
         {
             try
             {
-                // TODO: Add insert logic here
 
-                var test = collection;
+                int eventId;
 
-                var test2 = collection;
-                
+                if (collection.TryGetValue("TicketEventId", out var ticketEventIdStr))
+                {
+                    if (int.TryParse(ticketEventIdStr, out var ticketEventId))
+                        eventId = ticketEventId;
+                    else return Index();
+                } else return Index();
 
-                return RedirectToAction(nameof(Index));
+                var saveableTicket = new SaveableTicket();
+
+                using (var db = new ServerContext())
+                {
+
+                    if (!DbUtils.IsEventExistingAndUserEventMember(eventId, _userManager.GetUserId(User), db)) return List(eventId);
+
+                    FillTicket(saveableTicket, collection);
+
+                    var saveableEvent = db.Events.Find(eventId);
+
+                    saveableTicket.Event = saveableEvent;
+                    saveableTicket.CreatorId = saveableTicket.UpdaterId = _userManager.GetUserId(User);
+                    saveableTicket.CreatedAt = saveableTicket.UpdatedAt = DateTime.Now;
+
+                    db.Tickets.Add(saveableTicket);
+                    db.SaveChanges();
+                }
+
+
+                return List(eventId);
             }
             catch
             {
-                return View();
+                return Index();
             }
         }
 
         // GET: User/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            SaveableTicket model = null;
+
+            using (var db = new ServerContext())
+            {
+                if (DbUtils.IsTicketExisting(id, db))
+                    model = db.Tickets.Find(id);
+            }
+
+            return model != null ? View(model) : View("Index");
         }
 
         // POST: User/Edit/5
@@ -101,15 +142,58 @@ namespace EventTicketsManager.Controllers
         {
             try
             {
-                // TODO: Add update logic here
 
-                return RedirectToAction(nameof(Index));
+                int eventId;
+
+                using (var db = new ServerContext())
+                {
+
+                    if (!DbUtils.IsTicketExisting(id, db)) return Index();
+
+                    var saveableTicket = db.Tickets.Include(t=>t.Event).Single(t => t.Id==id);
+
+                    eventId = saveableTicket.Event.Id;
+
+                    if (!DbUtils.IsEventExistingAndUserEventMember(eventId, _userManager.GetUserId(User), db))
+                        return List(eventId);
+
+                    FillTicket(saveableTicket, collection);
+
+                    saveableTicket.UpdaterId = _userManager.GetUserId(User);
+                    saveableTicket.UpdatedAt = DateTime.Now;
+
+                    db.Events.Attach(saveableTicket.Event);
+                    db.SaveChanges();
+                }
+
+
+                return List(eventId);
             }
-            catch
+            catch (Exception e)
             {
-                return View();
+                return Index();
             }
         }
+
+        private void FillTicket(SaveableTicket saveableTicket, IFormCollection collection)
+        {
+            if (collection.TryGetValue("FirstName", out var firstName))
+                saveableTicket.FirstName = firstName;
+            if (collection.TryGetValue("LastName", out var lastName))
+                saveableTicket.LastName = lastName;
+            if (collection.TryGetValue("Email", out var email))
+                saveableTicket.Email = email;
+            if (collection.TryGetValue("Gender", out var genderStr))
+                if(int.TryParse(genderStr, out var gender))
+                    saveableTicket.Gender = gender;
+            if (collection.TryGetValue("ToPay", out var toPayStr))
+                if (decimal.TryParse(toPayStr, out var toPay))
+                    saveableTicket.ToPay = toPay;
+            if (!collection.TryGetValue("HasPaid", out var hasPaidStr)) return;
+            if (int.TryParse(hasPaidStr, out var hasPaid))
+                saveableTicket.HasPaid = hasPaid == 1;
+        }
+
 
         // GET: User/Delete/5
         public ActionResult Delete(int id)
@@ -141,7 +225,7 @@ namespace EventTicketsManager.Controllers
             using (var db = new ServerContext())
                 list.AddRange(db.Tickets.Where(t => t.Event.Id == id).ToList());
 
-            return View(list);
+            return View("List", list);
         }
 
         public ActionResult Search(int id)
