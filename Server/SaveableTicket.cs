@@ -35,7 +35,7 @@ namespace Server
 
 		public bool HasPaid { get; set; }
 
-		public bool Sex { get; set; }
+		public int Gender { get; set; }
 
         public SaveableEvent Event { get; set; }
 
