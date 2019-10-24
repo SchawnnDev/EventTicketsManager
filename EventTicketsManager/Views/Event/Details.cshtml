@@ -1,174 +1,177 @@
 ﻿@model EventDetailsModel
 
 @{
-    ViewData["Title"] = "Details";
-    var i = 1;
+	ViewData["Title"] = "Details";
+	var i = 1;
 }
 
-<style type="text/css">
-    .tableFixHead {/*
-        overflow-y: auto;
-        height: 350px; */
-        position: relative;
-        max-height: 350px;
-        overflow: auto;
-        display: block;
-    }
-</style>
+@section Styles {
+	<style type="text/css">
+
+		.tableFixHead { /*
+		overflow-y: auto;
+		height: 350px; */
+			position: relative;
+			max-height: 350px;
+			overflow: auto;
+			display: block;
+		}
+	</style>
+}
 
 <h1>Details of @Model.Event.Name</h1>
 
 <div>
-    <h4>Manage your event and collaborators.</h4>
-    <hr/>
+	<h4>Manage your event and collaborators.</h4>
+	<hr />
 </div>
 
 <div class="container">
 
-    <div class="row">
+	<div class="row">
 
-        <div class="col-md-6">
-            
-            <h6>Informations</h6>
-            
-            <table class="table table-bordered table-striped mb-0">
+		<div class="col-md-6">
 
-                <tbody>
-                <tr>
-                    <td>Header</td>
-                    <td><img src="@Model.Event.HeaderUrl" class="img-fluid rounded" style="height: 75%;" alt="" /></td>
-                </tr>
-                <tr>
-                    <td>Ticket Price</td>
-                    <td>@Model.Event.EnterPrice€</td>
-                </tr>
-                <tr>
-                    <td>Tickets Created</td>
-                    <td>0</td>
-                </tr>
-                <tr>
-                    <td>Tickets Mail Sent</td>
-                    <td>0</td>
-                </tr>
-                <tr>
-                    <td>Tickets Scanned</td>
-                    <td>0</td>
-                </tr>
-                </tbody>
-            </table>
+			<h6>Informations</h6>
 
-            
+			<table class="table table-bordered table-striped mb-0">
 
-        </div>
-
-        <div class="col-md-6">
-
-            <h6>Manage collaborators</h6>
-
-            <div class="tableFixHead">
-                <table class="table table-bordered table-striped mb-0">
-                    <thead>
-                        <tr>
-                            <th>
-                                N°
-                            </th>
-                            <th>
-                                Email
-                            </th>
-                            <th>
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
+				<tbody>
+					<tr>
+						<td>Header</td>
+						<td><img src="@Model.Event.HeaderUrl" class="img-fluid rounded" style="height: 75%;" alt="" /></td>
+					</tr>
+					<tr>
+						<td>Ticket Price</td>
+						<td>@Model.Event.EnterPrice€</td>
+					</tr>
+					<tr>
+						<td>Tickets Created</td>
+						<td>0</td>
+					</tr>
+					<tr>
+						<td>Tickets Mail Sent</td>
+						<td>0</td>
+					</tr>
+					<tr>
+						<td>Tickets Scanned</td>
+						<td>0</td>
+					</tr>
+				</tbody>
+			</table>
 
 
-                        @foreach (var item in Model.EventUsers)
-                        {
-                            <tr>
-                                <td>
-                                    @(i++)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Email)
-                                </td>
 
-                                <td>
-                                    <form asp-action="DeleteEventUser">
-                                        <input type="number" hidden="hidden" name="Id" value="@item.EventUser.Id" />
-                                        <input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
-                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Do you really want to delete this user from the project?')">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+		</div>
 
-            <form asp-action="AddEventUser">
-                <div class="input-group mb-3">
-                    <input type="email" class="form-control" placeholder="Collaborator Email" aria-label="Collaborator Email" aria-describedby="button-addon2" name="Email" required>
-                    <input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Add</button>
-                    </div>
-                </div>
-            </form>
+		<div class="col-md-6">
 
-            <br />
+			<h6>Manage collaborators</h6>
 
-            <h6>Manage API Key</h6>
+			<div class="tableFixHead">
+				<table class="table table-bordered table-striped mb-0">
+					<thead>
+						<tr>
+							<th>
+								N°
+							</th>
+							<th>
+								Email
+							</th>
+							<th>
+								Actions
+							</th>
+						</tr>
+					</thead>
+					<tbody>
 
-            <br />
 
-            <form asp-action="RenewApiKey">
-                <div class="input-group">
-                    <input type="text" value="@(Model.Event.ApiKey ?? "")" class="form-control" placeholder="API Key" aria-label="API Key" id="apiKey" disabled="disabled" required>
-                    <input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
-                    
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" onclick="copyApiKey()">Copy</button>
-                        <button class="btn btn-outline-secondary" type="submit" onclick="return confirm('Do you really want to renew the projects API Key?')">Renew</button>
-                    </div>
+						@foreach (var item in Model.EventUsers)
+						{
+							<tr>
+								<td>
+									@(i++)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.Email)
+								</td>
 
-                </div>
-            </form>
+								<td>
+									<form asp-action="DeleteEventUser">
+										<input type="number" hidden="hidden" name="Id" value="@item.EventUser.Id" />
+										<input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
+										<button type="submit" class="btn btn-danger" onclick="return confirm('Do you really want to delete this user from the project?')">Delete</button>
+									</form>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
 
-        </div>
+			<form asp-action="AddEventUser">
+				<div class="input-group mb-3">
+					<input type="email" class="form-control" placeholder="Collaborator Email" aria-label="Collaborator Email" aria-describedby="button-addon2" name="Email" required>
+					<input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
+					<div class="input-group-append">
+						<button class="btn btn-outline-secondary" type="submit" id="button-addon2">Add</button>
+					</div>
+				</div>
+			</form>
 
-    </div>
+			<br />
+
+			<h6>Manage API Key</h6>
+
+			<br />
+
+			<form asp-action="RenewApiKey">
+				<div class="input-group">
+					<input type="text" value="@(Model.Event.ApiKey ?? "")" class="form-control" placeholder="API Key" aria-label="API Key" id="apiKey" disabled="disabled" required>
+					<input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
+
+					<div class="input-group-append">
+						<button class="btn btn-outline-secondary" type="button" onclick="copyApiKey()">Copy</button>
+						<button class="btn btn-outline-secondary" type="submit" onclick="return confirm('Do you really want to renew the projects API Key?')">Renew</button>
+					</div>
+
+				</div>
+			</form>
+
+		</div>
+
+	</div>
 
 </div>
 
-<br/>
+<br />
 
 <div>
-    <a class="btn btn-info btn-lg" asp-action="Index">Back to List</a>
-    @Html.ActionLink("Edit", "Edit", new {id = Model.Event.Id}, new {@class = "btn btn-primary btn-lg"})
-    @Html.ActionLink("Delete", "Delete", new {id = Model.Event.Id}, new {@class = "btn btn-danger btn-lg"})
+	<a class="btn btn-info btn-lg" asp-action="Index">Back to List</a>
+	@Html.ActionLink("Edit", "Edit", new { id = Model.Event.Id }, new { @class = "btn btn-primary btn-lg" })
+	@Html.ActionLink("Delete", "Delete", new { id = Model.Event.Id }, new { @class = "btn btn-danger btn-lg" })
 </div>
 
 @section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-    
-    
-    <script type="text/javascript">
+	@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 
-        function copyApiKey() {
-            /* Get the text field */
-            var copyText = document.getElementById("apiKey");
 
-            /* Select the text field */
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+	<script type="text/javascript">
 
-            /* Copy the text inside the text field */
-            document.execCommand("copy");
+		function copyApiKey() {
+			/* Get the text field */
+			var copyText = document.getElementById("apiKey");
 
-            /* Alert the copied text */
-            alert("Api Key copied!");
-        }
+			/* Select the text field */
+			copyText.select();
+			copyText.setSelectionRange(0, 99999); /*For mobile devices*/
 
-    </script>
+			/* Copy the text inside the text field */
+			document.execCommand("copy");
+
+			/* Alert the copied text */
+			alert("Api Key copied!");
+		}
+
+	</script>
 }

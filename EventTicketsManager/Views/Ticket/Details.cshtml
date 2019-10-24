@@ -2,106 +2,204 @@
 @model TicketDetailsModel
 
 @{
-    ViewData["Title"] = "Details";
+	ViewData["Title"] = "Details";
+	var scanCount = 1;
+	var mailCount = 1;
+}
+
+@section Styles {
+	<style type="text/css">
+
+		.tableFixHead { /*
+		overflow-y: auto;
+		height: 350px; */
+			position: relative;
+			max-height: 350px;
+			overflow: auto;
+			display: block;
+		}
+	</style>
 }
 
 <h1>Details</h1>
 
 <div>
-    <h4>Manage a ticket.</h4>
-    <hr />
+	<h4>Manage a ticket.</h4>
+	<hr/>
 </div>
 
 <div class="container">
 
-    <div class="row">
+	<div class="row">
 
-        <div class="col-md-6">
+		<div class="col-md-6">
 
-            <h6>Informations</h6>
+			<h6>Informations</h6>
 
-            <table class="table table-bordered table-striped mb-0">
+			<table class="table table-bordered table-striped mb-0">
 
-                <tbody>
-                <tr>
-                    <td>First Name</td>
-                    <td>@Model.Ticket.FirstName</td>
-                </tr>
-                <tr>
-                    <td>Last Name</td>
-                    <td>@Model.Ticket.LastName</td>
-                </tr>
-                <tr>
-                    <td>Gender</td>
-                    <td>@(((Gender)Model.Ticket.Gender).ToString())</td>
-                </tr>
-                <tr>
-                    <td>To Pay</td>
-                    <td>@(Model.Ticket.ToPay.ToString("c"))</td>
-                </tr>
-                <tr>
-                    <td>Created By</td>
-                    <td>@(Model.CreatorEmail)</td>
-                </tr>
-                <tr>
-                    <td>Ticket Scanned?</td>
-                    <td>@(Model.TicketScanned ? $"Yes ({Model.TicketScanNumber})" : "No")</td>
-                </tr>
-                </tbody>
-            </table>
-
-
-
-        </div>
-
-        <div class="col-md-6">
-            
-            <h6>Payment & use informations</h6>
-
-            <div class="alert alert-@(Model.Ticket.HasPaid ? "success" : "danger")" role="alert">
-                @Html.Raw($"This ticket {(Model.Ticket.HasPaid ? "was" : "needs to be")} paid!")
-            </div>
-
-            <br/>
+				<tbody>
+				<tr>
+					<td>First Name</td>
+					<td>@Model.Ticket.FirstName</td>
+				</tr>
+				<tr>
+					<td>Last Name</td>
+					<td>@Model.Ticket.LastName</td>
+				</tr>
+				<tr>
+					<td>Gender</td>
+					<td>@(((Gender) Model.Ticket.Gender).ToString())</td>
+				</tr>
+				<tr>
+					<td>To Pay</td>
+					<td>@(Model.Ticket.ToPay.ToString("c"))</td>
+				</tr>
+				<tr>
+					<td>Created By</td>
+					<td>@(Model.CreatorEmail)</td>
+				</tr>
+				<tr>
+					<td>Ticket Scanned?</td>
+					<td>@(Model.TicketScanned ? $"Yes ({Model.TicketScanNumber})" : "No")</td>
+				</tr>
+				</tbody>
+			</table>
 
 
+		</div>
 
-            <br/>
+		<div class="col-md-6">
 
-        </div>
+			<h6>Payment & use informations</h6>
 
-    </div>
-    <br />
-    <div class="row">
-        @Html.ActionLink("Back to list", "List", new { id = Model.Ticket.Id }, new { @class = "btn btn-info btn-lg" })
-        @Html.ActionLink("Edit", "Edit", new { id = Model.Ticket.Id }, new { @class = "btn btn-primary btn-lg" })
-        @Html.ActionLink("Delete", "Delete", new { id = Model.Ticket.Id }, new { @class = "btn btn-danger btn-lg" })
-    </div>
+			<div class="alert alert-@(Model.Ticket.HasPaid ? "success" : "danger")" role="alert">
+				@Html.Raw($"This ticket {(Model.Ticket.HasPaid ? "was" : "needs to be")} paid!")
+			</div>
+
+		</div>
+	</div>
+	<br/>
+
+	<div class="row">
+		
+		<div class="col-md-6">
+
+			<h6>Mails sent history</h6>
+
+			<div class="tableFixHead">
+				<table class="table table-bordered table-striped mb-0">
+					<thead>
+					<tr>
+						<th>
+							N°
+						</th>
+						<th>
+							Date
+						</th>
+						<th>
+							User
+						</th>
+					</tr>
+					</thead>
+					<tbody>
+
+					@foreach (var item in Model.Mails)
+					{
+						<tr>
+							<td>
+								@(mailCount++)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Date)
+							</td>
+
+							<td>
+								@Html.DisplayFor(modelItem => item.CreatorId)
+							</td>
+						</tr>
+					}
+					</tbody>
+				</table>
+			</div>
+
+
+			<br/>
+
+		</div>
+
+
+		<div class="col-md-6">
+
+			<h6>Ticket scan history</h6>
+
+			<div class="tableFixHead">
+				<table class="table table-bordered table-striped mb-0">
+					<thead>
+					<tr>
+						<th>
+							N°
+						</th>
+						<th>
+							Date
+						</th>
+						<th>
+							User
+						</th>
+					</tr>
+					</thead>
+					<tbody>
+
+					@foreach (var item in Model.Scans)
+					{
+						<tr>
+							<td>
+								@(scanCount++)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Date)
+							</td>
+
+							<td>
+								@Html.DisplayFor(modelItem => item.CreatorId)
+							</td>
+						</tr>
+					}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<br/>
+	<div class="row">
+		@Html.ActionLink("Back to list", "List", new {id = Model.Ticket.Id}, new {@class = "btn btn-info btn-lg"})
+		@Html.ActionLink("Edit", "Edit", new {id = Model.Ticket.Id}, new {@class = "btn btn-primary btn-lg"})
+		@Html.ActionLink("Delete", "Delete", new {id = Model.Ticket.Id}, new {@class = "btn btn-danger btn-lg"})
+	</div>
 
 </div>
 
 
-
 @section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+	@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 
 
-    <script type="text/javascript">
+	<script type="text/javascript">
 
-        function copyApiKey() {
-            /* Get the text field */
-            var copyText = document.getElementById("apiKey");
+		function copyApiKey() {
+			/* Get the text field */
+			var copyText = document.getElementById("apiKey");
 
-            /* Select the text field */
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+			/* Select the text field */
+			copyText.select();
+			copyText.setSelectionRange(0, 99999); /*For mobile devices*/
 
-            /* Copy the text inside the text field */
-            document.execCommand("copy");
+			/* Copy the text inside the text field */
+			document.execCommand("copy");
 
-            /* Alert the copied text */
-            alert("Api Key copied!");
-        }
+			/* Alert the copied text */
+			alert("Api Key copied!");
+		}
 
-    </script>
+	</script>
 }

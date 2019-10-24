@@ -15,13 +15,25 @@ namespace EventTicketsManager.Models
 
         public int TicketScanNumber { get; set; }
 
+		public bool MailSent { get; set; }
+
+		public int MailsSent { get; set; }
+
         public string CreatorEmail { get; set; }
 
-        public TicketDetailsModel(SaveableTicket ticket, int ticketScanNumber, string creatorEmail)
+		public List<SaveableTicketScan> Scans { get; set; }
+
+		public List<SaveableTicketUserMail> Mails { get; set; }
+
+        public TicketDetailsModel(SaveableTicket ticket, List<SaveableTicketScan> scans, List<SaveableTicketUserMail> mails, string creatorEmail)
         {
             Ticket = ticket;
-            TicketScanNumber = ticketScanNumber;
-            TicketScanned = ticketScanNumber != 0;
+			Scans = scans;
+            TicketScanNumber = scans.Count;
+            TicketScanned =  TicketScanNumber != 0;
+            Mails = mails;
+            MailSent = MailsSent != 0;
+            MailsSent = mails.Count;
             CreatorEmail = creatorEmail;
         }
 

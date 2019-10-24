@@ -58,19 +58,22 @@ namespace EventTicketsManager.Controllers
         public ActionResult Details(int id)
         {
             SaveableTicket ticket;
-            int ticketScanNumber;
             string creatorEmail;
+            List<SaveableTicketScan> scans;
+            List<SaveableTicketUserMail> mails;
 
             using (var db = new ServerContext())
             {
                 if (!DbUtils.IsTicketExisting(id, db)) return List(id, "This ticket does not exists.");
 
                 ticket = db.Tickets.Find(id);
-                ticketScanNumber = db.TicketScans.Count(t => t.Ticket.Id == id);
                 creatorEmail = db.Users.Any(t=>t.Id == ticket.CreatorId) ? db.Users.Where(t => t.Id == ticket.CreatorId).Select(t => t.Email).Single() : "Not exists anymore";
-            }
+                scans = db.TicketScans.Where(t => t.Ticket.Id == id).OrderByDescending(t => t.Date).Select(t => new SaveableTicketScan(t.Ticket, db.Users.Any(e=>e.Id == t.CreatorId) ? db.Users.Where(e=>e.Id ==  t.CreatorId).Select(e=>e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
+                mails = db.TicketUserMails.Where(t => t.Ticket.Id == id).OrderByDescending(t => t.Date).Select(t => new SaveableTicketUserMail(t.Ticket, db.Users.Any(e => e.Id == t.CreatorId) ? db.Users.Where(e => e.Id == t.CreatorId).Select(e => e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
 
-            return View(new TicketDetailsModel(ticket, ticketScanNumber, creatorEmail));
+			}
+
+			return View(new TicketDetailsModel(ticket, scans, mails, creatorEmail));
         }
 
         // GET: User/Create

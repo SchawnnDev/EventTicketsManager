@@ -14,6 +14,15 @@ namespace Server
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int Id { get; set; }
 
+		public SaveableTicketUserMail() { }
+
+		public SaveableTicketUserMail(SaveableTicket ticket, string creatorId, DateTime date)
+		{
+			Ticket = ticket;
+			CreatorId = creatorId;
+			Date = date;
+		}
+
 		public SaveableTicket Ticket { get; set; }
 
         public string CreatorId { get; set; }
