@@ -9,7 +9,7 @@
 <h1>Tickets list</h1>
 
 <p>
-	<a class="btn btn-primary" asp-action="Create">Create New</a>
+    @Html.ActionLink("Create New", "Create", new { id = Model.Event.Id }, new { @class = "btn btn-primary" })
 </p>
 
 @if (Model.IsError())

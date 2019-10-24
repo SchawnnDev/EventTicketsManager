@@ -5,10 +5,6 @@
     ViewData["Title"] = "Create";
 }
 
-@section Styles {
-    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-}
-
 <h1>Create</h1>
 
 <h4>Create an new Ticket.</h4>
@@ -31,12 +27,12 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Ticket.FirstName" class="control-label">First Name</label>
-                <input asp-for="Ticket.FirstName" name="FirstName" class="form-control"/>
+                <input asp-for="Ticket.FirstName" name="FirstName" class="form-control" required/>
                 <span asp-validation-for="Ticket.FirstName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Ticket.LastName" class="control-label">Last Name</label>
-                <input asp-for="Ticket.LastName" name="LastName" class="form-control"/>
+                <input asp-for="Ticket.LastName" name="LastName" class="form-control" required/>
                 <span asp-validation-for="Ticket.LastName" class="text-danger"></span>
             </div>
         </div>
@@ -44,7 +40,7 @@
         <div class="col">
             <div class="form-group">
                 <label asp-for="Ticket.Email" type="email" class="control-label"></label>
-                <input asp-for="Ticket.Email" name="Email" class="form-control"/>
+                <input asp-for="Ticket.Email" name="Email" class="form-control" required/>
                 <span asp-validation-for="Ticket.Email" class="text-danger"></span>
             </div>
 
@@ -63,7 +59,7 @@
         <div class="col">
             <label asp-for="Ticket.ToPay" class="control-label">To Pay</label>
             <div class="input-group mb-2">
-                <input type="number" asp-for="Ticket.ToPay" name="ToPay" class="form-control" aria-label="Amount (to the nearest euro)" step="0.5" min="0">
+                <input type="number" asp-for="Ticket.ToPay" name="ToPay" class="form-control" aria-label="Amount (to the nearest euro)" step="0.5" min="0" required>
                 <div class="input-group-append">
                     <span class="input-group-text">€</span>
                 </div>

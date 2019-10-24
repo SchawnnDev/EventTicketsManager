@@ -16,12 +16,12 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="FirstName" class="control-label">First Name</label>
-                <input asp-for="FirstName" class="form-control" />
+                <input asp-for="FirstName" class="form-control" required />
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="LastName" class="control-label">Last Name</label>
-                <input asp-for="LastName" class="form-control" />
+                <input asp-for="LastName" class="form-control" required />
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
         </div>
@@ -48,7 +48,7 @@
         <div class="col">
             <label asp-for="ToPay" class="control-label">To Pay</label>
             <div class="input-group mb-2">
-                <input type="number" asp-for="ToPay" class="form-control" aria-label="Amount (to the nearest euro)" step="0.5" min="0">
+                <input type="number" asp-for="ToPay" class="form-control" aria-label="Amount (to the nearest euro)" step="0.5" min="0" required />
                 <div class="input-group-append">
                     <span class="input-group-text">€</span>
                 </div>

@@ -16,6 +16,8 @@ namespace Server
 
 		public SaveableTicket Ticket { get; set; }
 
+        public string CreatorId { get; set; }
+
 		public DateTime Date { get; set; }
 
 	}

@@ -1,8 +1,21 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-	<p>Please create your account.</p>
-</div>
+    <div class="text-center">
+        <h1 class="display-4">Welcome</h1>
+
+        @if (SignInManager.IsSignedIn(User))
+        {
+            <p>Manage your events & tickets using the navigation bar buttons "Events" and "Tickets".</p>
+        }
+        else
+        {
+            <p>Please create your account.</p>
+        }
+
+    </div>

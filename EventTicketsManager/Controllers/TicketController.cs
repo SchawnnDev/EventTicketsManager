@@ -26,7 +26,7 @@ namespace EventTicketsManager.Controllers
         // GET: User
         public ActionResult Index()
         {
-            return Index("");
+            return Index(null);
         }
 
         private ActionResult Index(string error)
@@ -57,15 +57,20 @@ namespace EventTicketsManager.Controllers
         // GET: User/Details/5
         public ActionResult Details(int id)
         {
-            SaveableTicket model = null;
+            SaveableTicket ticket;
+            int ticketScanNumber;
+            string creatorEmail;
 
             using (var db = new ServerContext())
             {
-                if (DbUtils.IsTicketExisting(id, db))
-                    model = db.Tickets.Find(id);
+                if (!DbUtils.IsTicketExisting(id, db)) return List(id, "This ticket does not exists.");
+
+                ticket = db.Tickets.Find(id);
+                ticketScanNumber = db.TicketScans.Count(t => t.Ticket.Id == id);
+                creatorEmail = db.Users.Any(t=>t.Id == ticket.CreatorId) ? db.Users.Where(t => t.Id == ticket.CreatorId).Select(t => t.Email).Single() : "Not exists anymore";
             }
 
-            return model != null ? View(model) : View("Index");
+            return View(new TicketDetailsModel(ticket, ticketScanNumber, creatorEmail));
         }
 
         // GET: User/Create
@@ -74,11 +79,11 @@ namespace EventTicketsManager.Controllers
             decimal toPay;
             using (var db = new ServerContext())
             {
-                if (!DbUtils.IsEventExisting(id, db)) return View("Index");
+                if (!DbUtils.IsEventExisting(id, db)) return Index("Event not existing");
                 toPay = db.Events.Where(t => t.Id == id).Select(t => t.EnterPrice).Single();
             }
 
-            return View(new TicketCreateModel(new SaveableTicket {TicketEventId = id, ToPay = toPay}, ""));
+            return View(new TicketCreateModel(new SaveableTicket {TicketEventId = id, ToPay = toPay}, null));
         }
 
         private ActionResult Create(SaveableTicket ticket, string error)
@@ -162,7 +167,7 @@ namespace EventTicketsManager.Controllers
                     model = db.Tickets.Find(id);
             }
 
-            return model != null ? View(model) : View("Index");
+            return model != null ? View(model) : Index("Ticket does not exists.");
         }
 
         // POST: User/Edit/5
@@ -176,14 +181,14 @@ namespace EventTicketsManager.Controllers
 
                 using (var db = new ServerContext())
                 {
-                    if (!DbUtils.IsTicketExisting(id, db)) return Index();
+                    if (!DbUtils.IsTicketExisting(id, db)) return Index("Ticket does not exists.");
 
                     var saveableTicket = db.Tickets.Include(t => t.Event).Single(t => t.Id == id);
 
                     eventId = saveableTicket.Event.Id;
 
                     if (!DbUtils.IsEventExistingAndUserEventMember(eventId, _userManager.GetUserId(User), db))
-                        return List(eventId, "event is not existing or you're not owner/collaborator of this event");
+                        return List(eventId, "Event is not existing or you're not owner/collaborator of this event");
 
                     FillTicket(saveableTicket, collection);
 
@@ -251,12 +256,17 @@ namespace EventTicketsManager.Controllers
 
         private ActionResult List(int id, string error)
         {
+
+            SaveableEvent saveableEvent = null;
 	        var list = new List<SaveableTicket>();
 
 	        using (var db = new ServerContext())
-		        list.AddRange(db.Tickets.Where(t => t.Event.Id == id).ToList());
-
-	        return View("List", new TicketListModel(list, error));
+            {
+                if (!DbUtils.IsEventExistingAndUserEventMember(id, _userManager.GetUserId(User), db)) return Index("Event is not existing or you're not owner/collaborator of this event");
+                saveableEvent = db.Events.Find(id);
+                list.AddRange(db.Tickets.Where(t => t.Event.Id == id).ToList());
+            }
+            return View("List", new TicketListModel(saveableEvent, list, error));
         }
 
 		public ActionResult Search(int id)
