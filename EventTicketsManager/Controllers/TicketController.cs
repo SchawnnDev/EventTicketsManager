@@ -26,7 +26,7 @@ namespace EventTicketsManager.Controllers
         // GET: User
         public ActionResult Index()
         {
-            return Index(null);
+            return Index("");
         }
 
         private ActionResult Index(string error)
@@ -78,7 +78,7 @@ namespace EventTicketsManager.Controllers
                 toPay = db.Events.Where(t => t.Id == id).Select(t => t.EnterPrice).Single();
             }
 
-            return View(new TicketCreateModel(new SaveableTicket {TicketEventId = id, ToPay = toPay}));
+            return View(new TicketCreateModel(new SaveableTicket {TicketEventId = id, ToPay = toPay}, ""));
         }
 
         private ActionResult Create(SaveableTicket ticket, string error)
@@ -107,8 +107,12 @@ namespace EventTicketsManager.Controllers
 
                 using (var db = new ServerContext())
                 {
-                    if (!DbUtils.IsEventExistingAndUserEventMember(eventId, _userManager.GetUserId(User), db))
-                        return List(eventId);
+
+	                var user = _userManager.GetUserId(User);
+
+
+	                if (!DbUtils.IsEventExistingAndUserEventMember(eventId, _userManager.GetUserId(User), db))
+						return List(eventId, "event is not existing or you're not owner/collaborator of this event");
 
                     FillTicket(saveableTicket, collection);
 
@@ -117,6 +121,7 @@ namespace EventTicketsManager.Controllers
                         if (db.Tickets.Any(t =>
                             t.Event.Id == eventId && t.Email.ToLower().Equals(email.ToString().ToLower())))
                         {
+	                        saveableTicket.TicketEventId = eventId;
                             return Create(saveableTicket, "This email is already taken!");
                         }
 
@@ -178,7 +183,7 @@ namespace EventTicketsManager.Controllers
                     eventId = saveableTicket.Event.Id;
 
                     if (!DbUtils.IsEventExistingAndUserEventMember(eventId, _userManager.GetUserId(User), db))
-                        return List(eventId);
+                        return List(eventId, "event is not existing or you're not owner/collaborator of this event");
 
                     FillTicket(saveableTicket, collection);
 
@@ -190,7 +195,7 @@ namespace EventTicketsManager.Controllers
                 }
 
 
-                return List(eventId);
+                return List(eventId );
             }
             catch (Exception e)
             {
@@ -241,15 +246,20 @@ namespace EventTicketsManager.Controllers
 
         public ActionResult List(int id)
         {
-            var list = new List<SaveableTicket>();
-
-            using (var db = new ServerContext())
-                list.AddRange(db.Tickets.Where(t => t.Event.Id == id).ToList());
-
-            return View("List", list);
+	        return List(id, null);
         }
 
-        public ActionResult Search(int id)
+        private ActionResult List(int id, string error)
+        {
+	        var list = new List<SaveableTicket>();
+
+	        using (var db = new ServerContext())
+		        list.AddRange(db.Tickets.Where(t => t.Event.Id == id).ToList());
+
+	        return View("List", new TicketListModel(list, error));
+        }
+
+		public ActionResult Search(int id)
         {
             return View();
         }

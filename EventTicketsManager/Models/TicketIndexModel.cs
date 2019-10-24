@@ -21,7 +21,7 @@ namespace EventTicketsManager.Models
             Error = error;
         }
 
-        public bool IsError() => !string.IsNullOrWhiteSpace(Error);
+        public bool IsError() => !string.IsNullOrEmpty(Error);
 
     }
 }

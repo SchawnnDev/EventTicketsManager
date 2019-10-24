@@ -1,5 +1,5 @@
 ﻿@using Library.Enums
-@model IEnumerable<Server.SaveableTicket>
+@model TicketListModel
 
 @{
     ViewData["Title"] = "Tickets List";
@@ -9,8 +9,19 @@
 <h1>Tickets list</h1>
 
 <p>
-    <a class="btn btn-primary" asp-action="Create">Create New</a>
+	<a class="btn btn-primary" asp-action="Create">Create New</a>
 </p>
+
+@if (Model.IsError())
+{
+	<div class="alert alert-danger alert-dismissible fade show" role="alert">
+		@Model.Error
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+}
+
 <table class="table table-striped">
     <thead>
     <tr>
@@ -24,10 +35,10 @@
             Last Name
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Email)
+            Email
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Gender)
+			Gender
         </th>
         <th>
             Has Paid
@@ -36,7 +47,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model)
+    @foreach (var item in Model.Tickets)
     {
         <tr>
             <td>@(i++)</td>
