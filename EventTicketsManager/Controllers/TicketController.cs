@@ -26,6 +26,11 @@ namespace EventTicketsManager.Controllers
         // GET: User
         public ActionResult Index()
         {
+            return Index(null);
+        }
+
+        private ActionResult Index(string error)
+        {
             var events = new List<SaveableEvent>();
             var userId = _userManager.GetUserId(User);
 
@@ -46,7 +51,7 @@ namespace EventTicketsManager.Controllers
             }
 
 
-            return View("Index", new TicketIndexModel(events));
+            return View("Index", new TicketIndexModel(events, error));
         }
 
         // GET: User/Details/5
@@ -56,7 +61,7 @@ namespace EventTicketsManager.Controllers
 
             using (var db = new ServerContext())
             {
-                if (DbUtils.IsTicketExisting(id,db))
+                if (DbUtils.IsTicketExisting(id, db))
                     model = db.Tickets.Find(id);
             }
 
@@ -73,7 +78,12 @@ namespace EventTicketsManager.Controllers
                 toPay = db.Events.Where(t => t.Id == id).Select(t => t.EnterPrice).Single();
             }
 
-            return View(new SaveableTicket {TicketEventId = id, ToPay = toPay});
+            return View(new TicketCreateModel(new SaveableTicket {TicketEventId = id, ToPay = toPay}));
+        }
+
+        private ActionResult Create(SaveableTicket ticket, string error)
+        {
+            return View(new TicketCreateModel(ticket, error));
         }
 
         // POST: User/Create
@@ -83,24 +93,39 @@ namespace EventTicketsManager.Controllers
         {
             try
             {
-
                 int eventId;
 
                 if (collection.TryGetValue("TicketEventId", out var ticketEventIdStr))
                 {
                     if (int.TryParse(ticketEventIdStr, out var ticketEventId))
                         eventId = ticketEventId;
-                    else return Index();
-                } else return Index();
+                    else return Index("Can't parse ticket event id");
+                }
+                else return Index("Can't find ticket event id input");
 
                 var saveableTicket = new SaveableTicket();
 
                 using (var db = new ServerContext())
                 {
-
-                    if (!DbUtils.IsEventExistingAndUserEventMember(eventId, _userManager.GetUserId(User), db)) return List(eventId);
+                    if (!DbUtils.IsEventExistingAndUserEventMember(eventId, _userManager.GetUserId(User), db))
+                        return List(eventId);
 
                     FillTicket(saveableTicket, collection);
+
+                    if (collection.TryGetValue("Email", out var email))
+                    {
+                        if (db.Tickets.Any(t =>
+                            t.Event.Id == eventId && t.Email.ToLower().Equals(email.ToString().ToLower())))
+                        {
+                            return Create(saveableTicket, "This email is already taken!");
+                        }
+
+                        saveableTicket.Email = email.ToString();
+                    }
+                    else
+                    {
+                        return List(eventId);
+                    }
 
                     var saveableEvent = db.Events.Find(eventId);
 
@@ -115,9 +140,9 @@ namespace EventTicketsManager.Controllers
 
                 return List(eventId);
             }
-            catch
+            catch (Exception e)
             {
-                return Index();
+                return Index(e.Message);
             }
         }
 
@@ -142,15 +167,13 @@ namespace EventTicketsManager.Controllers
         {
             try
             {
-
                 int eventId;
 
                 using (var db = new ServerContext())
                 {
-
                     if (!DbUtils.IsTicketExisting(id, db)) return Index();
 
-                    var saveableTicket = db.Tickets.Include(t=>t.Event).Single(t => t.Id==id);
+                    var saveableTicket = db.Tickets.Include(t => t.Event).Single(t => t.Id == id);
 
                     eventId = saveableTicket.Event.Id;
 
@@ -181,10 +204,8 @@ namespace EventTicketsManager.Controllers
                 saveableTicket.FirstName = firstName;
             if (collection.TryGetValue("LastName", out var lastName))
                 saveableTicket.LastName = lastName;
-            if (collection.TryGetValue("Email", out var email))
-                saveableTicket.Email = email;
             if (collection.TryGetValue("Gender", out var genderStr))
-                if(int.TryParse(genderStr, out var gender))
+                if (int.TryParse(genderStr, out var gender))
                     saveableTicket.Gender = gender;
             if (collection.TryGetValue("ToPay", out var toPayStr))
                 if (decimal.TryParse(toPayStr, out var toPay))

@@ -6,18 +6,18 @@ using Server;
 
 namespace EventTicketsManager.Models
 {
-    public class TicketIndexModel
+    public class TicketCreateModel
     {
 
-        public List<SaveableEvent> UserEvents { get; set; }
+        public SaveableTicket Ticket { get; set; }
 
         public string Error { get; set; }
 
-        public TicketIndexModel(List<SaveableEvent> userEvents) : this(userEvents, null) { }
+        public TicketCreateModel(SaveableTicket ticket) : this(ticket, null) { }
 
-        public TicketIndexModel(List<SaveableEvent> userEvents, string error)
+        public TicketCreateModel(SaveableTicket ticket, string error)
         {
-            UserEvents = userEvents;
+            Ticket = ticket;
             Error = error;
         }
 

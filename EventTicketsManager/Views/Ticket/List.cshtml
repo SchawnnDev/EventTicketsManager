@@ -1,7 +1,9 @@
-﻿@model IEnumerable<Server.SaveableTicket>
+﻿@using Library.Enums
+@model IEnumerable<Server.SaveableTicket>
 
 @{
     ViewData["Title"] = "Tickets List";
+    var i = 1;
 }
 
 <h1>Tickets list</h1>
@@ -9,35 +11,26 @@
 <p>
     <a class="btn btn-primary" asp-action="Create">Create New</a>
 </p>
-<table class="table" id="table1">
+<table class="table table-striped">
     <thead>
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.FirstName)
+            N°
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.LastName)
+            First Name
+        </th>
+        <th>
+            Last Name
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Email)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ToPay)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.HasPaid)
-        </th>
-        <th>
             @Html.DisplayNameFor(model => model.Gender)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.CreatorId)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CreatedAt)
+            Has Paid
         </th>
         <th></th>
     </tr>
@@ -46,6 +39,7 @@
     @foreach (var item in Model)
     {
         <tr>
+            <td>@(i++)</td>
             <td>
                 @Html.DisplayFor(modelItem => item.FirstName)
             </td>
@@ -56,27 +50,13 @@
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ToPay)
+                @(((Gender)item.Gender).ToString())
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.HasPaid)
+                @(item.HasPaid ? "Yes" : "No")
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Gender)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatorId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @Html.ActionLink("View", "Details", new { id = item.Id }, new { @class = "btn btn-info" })
             </td>
         </tr>
     }
