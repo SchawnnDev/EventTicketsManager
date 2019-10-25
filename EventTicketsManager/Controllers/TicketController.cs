@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventTicketsManager.Models;
+using Library.Api;
 using Library.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -36,13 +37,13 @@ namespace EventTicketsManager.Controllers
 
             using (var db = new ServerContext())
             {
-                events.AddRange(db.Events.Where(t => t.CreatorId == userId).ToList());
+                events.AddRange(db.Events.Where(t => t.CreatorId == userId && t.Enabled).ToList());
 
-                var list = db.EventUsers.Where(t => t.UserId == userId)
+                var list = db.EventUsers.Where(t => t.UserId == userId && t.Event.Enabled)
                     .Select(t => t.Event).ToList();
 
-                foreach (var saveableEvent in list)
-                {
+				foreach (var saveableEvent in list.Where(saveableEvent => events.All(t => t.Id != saveableEvent.Id)))
+				{
                     saveableEvent.IsCreator = false;
 
                     if (events.All(t => t.Id != saveableEvent.Id))
@@ -252,7 +253,49 @@ namespace EventTicketsManager.Controllers
             }
         }
 
-        public ActionResult List(int id)
+		// POST: User/GenerateKey/5
+		[HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GenerateKey(int id, IFormCollection collection)
+        {
+
+	        try
+	        {
+		        using var db = new ServerContext();
+
+		        if (!db.Tickets.Any(t => t.Id == id))
+			        return Details(id);
+		        if (db.QrCodes.Any(t => t.Ticket.Id == id))
+			        return Details(id);
+
+		        var saveableTicket = db.Tickets.Where(t=>t.Id == id).Include(t=>t.Event).Single();
+
+		        if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User), db))
+			        return Details(id);
+
+		        //saveableEvent.ApiKey = new QrCodeGenerator(saveableEvent).GenerateNewKey();
+		        var qrCode = new QrCodeGenerator(saveableTicket);
+
+		        var saveableQrCode = qrCode.GenerateKeys();
+
+		        saveableQrCode.CreatorId = _userManager.GetUserId(User);
+
+		        db.Tickets.Attach(saveableQrCode.Ticket);
+
+
+		        db.SaveChanges();
+
+
+		        return Details(id);
+	        }
+	        catch (Exception e)
+	        {
+		        return Details(id);
+	        }
+        }
+	
+
+		public ActionResult List(int id)
         {
 	        return List(id, null);
         }
