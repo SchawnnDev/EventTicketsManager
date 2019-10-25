@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Library.Api;
 using Library.Utils;
 using Server;
 
@@ -28,7 +29,9 @@ namespace EventTicketsManager.Models
 		public List<SaveableTicketUserMail> Mails { get; set; }
 		private string Base64Key => "+CffHxKmykUvCrrCILd4rZDBcrIoe3w89jnPNXYi0rU=";
 
-		public TicketDetailsModel(SaveableTicket ticket, List<SaveableTicketScan> scans, List<SaveableTicketUserMail> mails, string creatorEmail)
+		public SaveableTicketQrCode QrCode { get; set; }
+
+		public TicketDetailsModel(SaveableTicket ticket, List<SaveableTicketScan> scans, List<SaveableTicketUserMail> mails, SaveableTicketQrCode qrCode, string creatorEmail)
         {
             Ticket = ticket;
 			Scans = scans;
@@ -38,10 +41,14 @@ namespace EventTicketsManager.Models
             MailSent = MailsSent != 0;
             MailsSent = mails.Count;
             CreatorEmail = creatorEmail;
+            QrCode = qrCode;
         }
 
-		public string GetQrCodeContent() => AESEncryption.EncryptStringToBase64String($"{Ticket.Id}§§{Ticket.Email}",
-			Encoding.Unicode.GetBytes(Base64Key));
+		public bool HasQrCode() => QrCode != null;
+
+		public string GetQrCodeContent() => HasQrCode()
+			? new QrCodeGenerator(QrCode).Get()
+			: "";
 
     }
 }

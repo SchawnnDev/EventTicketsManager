@@ -81,8 +81,13 @@
 			<h6>Qr Code</h6>
 
 			<div id="qrcode"></div>
+			
+			<form asp-action="GenerateKey"> <!-- Todo: if key already exist dont do this!-->
+				
+				<button class="btn btn-primary" type="submit" onclick="displayQrCode(@Model.GetQrCodeContent())">Generate Qr Code</button>
 
-			<a id="qrcodebtn" class="btn btn-primary" onclick="displayQrCode(@Model.GetQrCodeContent())">Generate Qr Code</a>
+			</form>
+
 
 		</div>
 	</div>

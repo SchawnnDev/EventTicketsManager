@@ -62,6 +62,7 @@ namespace EventTicketsManager.Controllers
             string creatorEmail;
             List<SaveableTicketScan> scans;
             List<SaveableTicketUserMail> mails;
+            SaveableTicketQrCode qrCode;
 
             using (var db = new ServerContext())
             {
@@ -71,10 +72,10 @@ namespace EventTicketsManager.Controllers
                 creatorEmail = db.Users.Any(t=>t.Id == ticket.CreatorId) ? db.Users.Where(t => t.Id == ticket.CreatorId).Select(t => t.Email).Single() : "Not exists anymore";
                 scans = db.TicketScans.Where(t => t.Ticket.Id == id).OrderByDescending(t => t.Date).Select(t => new SaveableTicketScan(t.Ticket, db.Users.Any(e=>e.Id == t.CreatorId) ? db.Users.Where(e=>e.Id ==  t.CreatorId).Select(e=>e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
                 mails = db.TicketUserMails.Where(t => t.Ticket.Id == id).OrderByDescending(t => t.Date).Select(t => new SaveableTicketUserMail(t.Ticket, db.Users.Any(e => e.Id == t.CreatorId) ? db.Users.Where(e => e.Id == t.CreatorId).Select(e => e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
+				qrCode = db.QrCodes.SingleOrDefault(t=>t.Ticket.Id == id);
+            }
 
-			}
-
-			return View(new TicketDetailsModel(ticket, scans, mails, creatorEmail));
+			return View(new TicketDetailsModel(ticket, scans, mails, qrCode, creatorEmail));
         }
 
         // GET: User/Create
@@ -273,18 +274,15 @@ namespace EventTicketsManager.Controllers
 		        if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User), db))
 			        return Details(id);
 
-		        //saveableEvent.ApiKey = new QrCodeGenerator(saveableEvent).GenerateNewKey();
 		        var qrCode = new QrCodeGenerator(saveableTicket);
 
 		        var saveableQrCode = qrCode.GenerateKeys();
 
 		        saveableQrCode.CreatorId = _userManager.GetUserId(User);
-
+		        
 		        db.Tickets.Attach(saveableQrCode.Ticket);
 
-
 		        db.SaveChanges();
-
 
 		        return Details(id);
 	        }

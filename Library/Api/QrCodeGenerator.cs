@@ -15,15 +15,9 @@ namespace Library.Api
 
 		private byte[] Encrypted { get; set; }
 
-		public QrCodeGenerator(SaveableTicket ticket)
-		{
-			Ticket = ticket;
-		}
+		public QrCodeGenerator(SaveableTicket ticket) => Ticket = ticket;
 
-		public QrCodeGenerator(SaveableTicketQrCode qrCode)
-		{
-			QrCode = qrCode;
-		}
+		public QrCodeGenerator(SaveableTicketQrCode qrCode) => QrCode = qrCode;
 
 		public SaveableTicketQrCode GenerateKeys()
 		{
@@ -47,9 +41,7 @@ namespace Library.Api
 		public string Get()
 		{
 			if (QrCode == null) return "";
-
 			Encrypted = AESEncryption.EncryptStringToBytes($"{QrCode.Ticket.Id}§§{QrCode.Ticket.Email}", QrCode.Key, QrCode.IV);
-
 			return $"{QrCode.Id}§§{Convert.ToBase64String(Encrypted)}";
 		}
 
