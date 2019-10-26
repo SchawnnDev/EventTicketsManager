@@ -26,7 +26,7 @@
 
 <div>
 	<h4>Manage a ticket.</h4>
-	<hr />
+	<hr/>
 </div>
 
 <div class="container">
@@ -40,30 +40,30 @@
 			<table class="table table-bordered table-striped mb-0">
 
 				<tbody>
-					<tr>
-						<td>First Name</td>
-						<td>@Model.Ticket.FirstName</td>
-					</tr>
-					<tr>
-						<td>Last Name</td>
-						<td>@Model.Ticket.LastName</td>
-					</tr>
-					<tr>
-						<td>Gender</td>
-						<td>@(((Gender)Model.Ticket.Gender).ToString())</td>
-					</tr>
-					<tr>
-						<td>To Pay</td>
-						<td>@(Model.Ticket.ToPay.ToString("c"))</td>
-					</tr>
-					<tr>
-						<td>Created By</td>
-						<td>@(Model.CreatorEmail)</td>
-					</tr>
-					<tr>
-						<td>Ticket Scanned?</td>
-						<td>@(Model.TicketScanned ? $"Yes ({Model.TicketScanNumber})" : "No")</td>
-					</tr>
+				<tr>
+					<td>First Name</td>
+					<td>@Model.Ticket.FirstName</td>
+				</tr>
+				<tr>
+					<td>Last Name</td>
+					<td>@Model.Ticket.LastName</td>
+				</tr>
+				<tr>
+					<td>Gender</td>
+					<td>@(((Gender) Model.Ticket.Gender).ToString())</td>
+				</tr>
+				<tr>
+					<td>To Pay</td>
+					<td>@(Model.Ticket.ToPay.ToString("c"))</td>
+				</tr>
+				<tr>
+					<td>Created By</td>
+					<td>@(Model.CreatorEmail)</td>
+				</tr>
+				<tr>
+					<td>Ticket Scanned?</td>
+					<td>@(Model.TicketScanned ? $"Yes ({Model.TicketScanNumber})" : "No")</td>
+				</tr>
 				</tbody>
 			</table>
 
@@ -72,39 +72,55 @@
 
 		<div class="col-md-6">
 
+
 			<h6>Payment & use informations</h6>
 
 			<div class="alert alert-@(Model.Ticket.HasPaid ? "success" : "danger")" role="alert">
 				@Html.Raw($"This ticket {(Model.Ticket.HasPaid ? "was" : "needs to be")} paid!")
 			</div>
 
-			<h6>Qr Code</h6>
+			<div class="row">
 
-			<div id="qrcode"></div>
+				<div class="col-md-6">
 
-			@if (Model.HasQrCode())
-			{
 
-				<button id="qrcodebtn" class="btn btn-primary" type="submit" onclick="displayQrCode('@Model.GetQrCodeContent()')">Display Qr Code</button>
+					<h6>Qr Code</h6>
 
-			}
-			else
-			{
+					<div id="qrcode"></div>
 
-				<form asp-action="GenerateKey">
-					
-					<input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
+					@if (Model.HasQrCode())
+					{
+						<button id="qrcodebtn" class="btn btn-primary" type="submit" onclick="displayQrCode('@Model.GetQrCodeContent()')">Display Qr Code</button>
+					}
+					else
+					{
+						<form asp-action="GenerateKey">
 
-					<button class="btn btn-primary" type="submit" >Generate Qr Code</button>
+							<input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
 
-				</form>
+						</form>
+					}
+				</div>
 
-			}
+				<div class="col-md-6">
+					<h6>Mail management</h6>
 
+					<form asp-action="SendMail">
+						<input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
+						<button class="btn btn-primary" type="submit">Generate Qr Code</button>
+					</form>
+
+				</div>
+
+
+			</div>
+
+
+			<button class="btn btn-primary">@(Model.MailSent ? "Resend" : "Send") Mail</button>
 
 		</div>
 	</div>
-	<br />
+	<br/>
 
 	<div class="row">
 
@@ -115,41 +131,41 @@
 			<div class="tableFixHead">
 				<table class="table table-bordered table-striped mb-0">
 					<thead>
-						<tr>
-							<th>
-								N°
-							</th>
-							<th>
-								Date
-							</th>
-							<th>
-								User
-							</th>
-						</tr>
+					<tr>
+						<th>
+							N°
+						</th>
+						<th>
+							Date
+						</th>
+						<th>
+							User
+						</th>
+					</tr>
 					</thead>
 					<tbody>
 
-						@foreach (var item in Model.Mails)
-						{
-							<tr>
-								<td>
-									@(mailCount++)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.Date)
-								</td>
+					@foreach (var item in Model.Mails)
+					{
+						<tr>
+							<td>
+								@(mailCount++)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Date)
+							</td>
 
-								<td>
-									@Html.DisplayFor(modelItem => item.CreatorId)
-								</td>
-							</tr>
-						}
+							<td>
+								@Html.DisplayFor(modelItem => item.CreatorId)
+							</td>
+						</tr>
+					}
 					</tbody>
 				</table>
 			</div>
 
 
-			<br />
+			<br/>
 
 		</div>
 
@@ -161,45 +177,45 @@
 			<div class="tableFixHead">
 				<table class="table table-bordered table-striped mb-0">
 					<thead>
-						<tr>
-							<th>
-								N°
-							</th>
-							<th>
-								Date
-							</th>
-							<th>
-								User
-							</th>
-						</tr>
+					<tr>
+						<th>
+							N°
+						</th>
+						<th>
+							Date
+						</th>
+						<th>
+							User
+						</th>
+					</tr>
 					</thead>
 					<tbody>
 
-						@foreach (var item in Model.Scans)
-						{
-							<tr>
-								<td>
-									@(scanCount++)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.Date)
-								</td>
+					@foreach (var item in Model.Scans)
+					{
+						<tr>
+							<td>
+								@(scanCount++)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Date)
+							</td>
 
-								<td>
-									@Html.DisplayFor(modelItem => item.CreatorId)
-								</td>
-							</tr>
-						}
+							<td>
+								@Html.DisplayFor(modelItem => item.CreatorId)
+							</td>
+						</tr>
+					}
 					</tbody>
 				</table>
 			</div>
 		</div>
 	</div>
-	<br />
+	<br/>
 	<div class="row">
-		@Html.ActionLink("Back to list", "List", new { id = Model.Ticket.Event.Id }, new { @class = "btn btn-info btn-lg" })
-		@Html.ActionLink("Edit", "Edit", new { id = Model.Ticket.Id }, new { @class = "btn btn-primary btn-lg" })
-		@Html.ActionLink("Delete", "Delete", new { id = Model.Ticket.Id }, new { @class = "btn btn-danger btn-lg" })
+		@Html.ActionLink("Back to list", "List", new {id = Model.Ticket.Event.Id}, new {@class = "btn btn-info btn-lg"})
+		@Html.ActionLink("Edit", "Edit", new {id = Model.Ticket.Id}, new {@class = "btn btn-primary btn-lg"})
+		@Html.ActionLink("Delete", "Delete", new {id = Model.Ticket.Id}, new {@class = "btn btn-danger btn-lg"})
 	</div>
 
 </div>

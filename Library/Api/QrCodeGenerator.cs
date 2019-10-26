@@ -36,13 +36,13 @@ namespace Library.Api
 
 		}
 
-		public string Generate(int id) => Encrypted != null ? $"{id}§§{Convert.ToBase64String(Encrypted)}" : "";
+		public string Generate(int id) => Encrypted != null ? $"{id}§§{Convert.ToBase64String(Encrypted)}".Base64Encode() : "";
 
 		public string Get()
 		{
 			if (QrCode == null) return "";
 			Encrypted = AESEncryption.EncryptStringToBytes($"{QrCode.Ticket.Id}§§{QrCode.Ticket.Email}", QrCode.Key, QrCode.IV);
-			return $"{QrCode.Id}§§{Convert.ToBase64String(Encrypted)}";
+			return $"{QrCode.Id}§§{Convert.ToBase64String(Encrypted)}".Base64Encode();
 		}
 
 	}

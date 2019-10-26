@@ -68,14 +68,14 @@ namespace EventTicketsManager.Controllers
             {
                 if (!DbUtils.IsTicketExisting(id, db)) return List(id, "This ticket does not exists.");
 
-                ticket = db.Tickets.Find(id);
+                ticket = db.Tickets.Include(t=>t.Event).Single(t=>t.Id == id);
                 creatorEmail = db.Users.Any(t=>t.Id == ticket.CreatorId) ? db.Users.Where(t => t.Id == ticket.CreatorId).Select(t => t.Email).Single() : "Not exists anymore";
                 scans = db.TicketScans.Where(t => t.Ticket.Id == id).OrderByDescending(t => t.Date).Select(t => new SaveableTicketScan(t.Ticket, db.Users.Any(e=>e.Id == t.CreatorId) ? db.Users.Where(e=>e.Id ==  t.CreatorId).Select(e=>e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
                 mails = db.TicketUserMails.Where(t => t.Ticket.Id == id).OrderByDescending(t => t.Date).Select(t => new SaveableTicketUserMail(t.Ticket, db.Users.Any(e => e.Id == t.CreatorId) ? db.Users.Where(e => e.Id == t.CreatorId).Select(e => e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
 				qrCode = db.QrCodes.SingleOrDefault(t=>t.Ticket.Id == id);
             }
 
-			return View("Details",new TicketDetailsModel(ticket, scans, mails, qrCode, creatorEmail));
+			return View("Details", new TicketDetailsModel(ticket, scans, mails, qrCode, creatorEmail));
         }
 
         // GET: User/Create
@@ -329,5 +329,53 @@ namespace EventTicketsManager.Controllers
         {
             return View();
         }
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult SendMail(IFormCollection collection)
+		{
+			var id = 0;
+
+			try
+			{
+				using var db = new ServerContext();
+
+				if (collection.TryGetValue("TicketId", out var ticketIdStr))
+				{
+					if (int.TryParse(ticketIdStr, out var ticketId))
+						id = ticketId;
+					else return Index("Can't parse ticket id");
+				}
+				else return Index("Can't find ticket event id input");
+
+				if (!db.Tickets.Any(t => t.Id == id))
+					return Details(id);
+				if (db.QrCodes.Any(t => t.Ticket.Id == id))
+					return Details(id);
+
+				var saveableTicket = db.Tickets.Where(t => t.Id == id).Include(t => t.Event).Single();
+
+				if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User), db))
+					return Details(id);
+						/*
+				var qrCode = new QrCodeGenerator(saveableTicket);
+
+				var saveableQrCode = qrCode.GenerateKeys();
+
+				saveableQrCode.CreatorId = _userManager.GetUserId(User);
+
+				db.Tickets.Attach(saveableQrCode.Ticket);
+
+				db.QrCodes.Add(saveableQrCode);
+
+				db.SaveChanges(); */
+
+				return Details(id);
+			}
+			catch (Exception e)
+			{
+				return Details(id);
+			}
+		}
     }
 }
