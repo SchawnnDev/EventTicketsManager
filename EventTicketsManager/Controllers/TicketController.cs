@@ -75,7 +75,7 @@ namespace EventTicketsManager.Controllers
 				qrCode = db.QrCodes.SingleOrDefault(t=>t.Ticket.Id == id);
             }
 
-			return View(new TicketDetailsModel(ticket, scans, mails, qrCode, creatorEmail));
+			return View("Details",new TicketDetailsModel(ticket, scans, mails, qrCode, creatorEmail));
         }
 
         // GET: User/Create
@@ -257,14 +257,24 @@ namespace EventTicketsManager.Controllers
 		// POST: User/GenerateKey/5
 		[HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult GenerateKey(int id, IFormCollection collection)
+        public ActionResult GenerateKey(IFormCollection collection)
         {
+	        var id = 0;
 
 	        try
-	        {
+			{
 		        using var db = new ServerContext();
 
-		        if (!db.Tickets.Any(t => t.Id == id))
+
+		        if (collection.TryGetValue("TicketId", out var ticketIdStr))
+		        {
+			        if (int.TryParse(ticketIdStr, out var ticketId))
+				        id = ticketId;
+			        else return Index("Can't parse ticket id");
+		        }
+		        else return Index("Can't find ticket event id input");
+
+				if (!db.Tickets.Any(t => t.Id == id))
 			        return Details(id);
 		        if (db.QrCodes.Any(t => t.Ticket.Id == id))
 			        return Details(id);
@@ -281,6 +291,8 @@ namespace EventTicketsManager.Controllers
 		        saveableQrCode.CreatorId = _userManager.GetUserId(User);
 		        
 		        db.Tickets.Attach(saveableQrCode.Ticket);
+
+		        db.QrCodes.Add(saveableQrCode);
 
 		        db.SaveChanges();
 

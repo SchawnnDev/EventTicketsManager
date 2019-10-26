@@ -81,12 +81,25 @@
 			<h6>Qr Code</h6>
 
 			<div id="qrcode"></div>
-			
-			<form asp-action="GenerateKey"> <!-- Todo: if key already exist dont do this!-->
-				
-				<button class="btn btn-primary" type="submit" onclick="displayQrCode(@Model.GetQrCodeContent())">Generate Qr Code</button>
 
-			</form>
+			@if (Model.HasQrCode())
+			{
+
+				<button id="qrcodebtn" class="btn btn-primary" type="submit" onclick="displayQrCode('@Model.GetQrCodeContent()')">Display Qr Code</button>
+
+			}
+			else
+			{
+
+				<form asp-action="GenerateKey">
+					
+					<input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
+
+					<button class="btn btn-primary" type="submit" >Generate Qr Code</button>
+
+				</form>
+
+			}
 
 
 		</div>
@@ -184,7 +197,7 @@
 	</div>
 	<br />
 	<div class="row">
-		@Html.ActionLink("Back to list", "List", new { id = Model.Ticket.Id }, new { @class = "btn btn-info btn-lg" })
+		@Html.ActionLink("Back to list", "List", new { id = Model.Ticket.Event.Id }, new { @class = "btn btn-info btn-lg" })
 		@Html.ActionLink("Edit", "Edit", new { id = Model.Ticket.Id }, new { @class = "btn btn-primary btn-lg" })
 		@Html.ActionLink("Delete", "Delete", new { id = Model.Ticket.Id }, new { @class = "btn btn-danger btn-lg" })
 	</div>
@@ -195,11 +208,13 @@
 @section Scripts {
 	@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 
-	<script type="text/javascript" src="~/lib/qrcode/dist/qrcode.min.js"></script>
+	@if (Model.HasQrCode())
+	{
+		@Html.Raw("<script type=\"text/javascript\" src=\"/lib/qrcode/dist/qrcode.js\"></script>")
+		;
+	}
 
 	<script type="text/javascript">
-
-		var qrCodeGenerated = false;
 
 		function copyApiKey() {
 			/* Get the text field */
@@ -216,12 +231,16 @@
 			alert("Api Key copied!");
 		}
 
-		function displayQrCode(text) {
-			if (qrCodeGenerated) return;
-			new QRCode(document.getElementById("qrcode"), text);
-			$("#qrcodebtn").attr("disabled", true);
-			qrCodeGenerated = true;
-		}
+		@if (Model.HasQrCode())
+		{
+			@:var qrCodeGenerated = false;
 
+			@:function displayQrCode(text) {
+			@:	if (qrCodeGenerated) return;
+			@:  new QRCode(document.getElementById("qrcode"), { text: text, width: 192, height: 192 });
+			@:	$("#qrcodebtn").remove();
+			@:	qrCodeGenerated = true;
+			@:}
+		}
 	</script>
 }
