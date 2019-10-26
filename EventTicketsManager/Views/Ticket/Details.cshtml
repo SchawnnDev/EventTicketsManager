@@ -107,17 +107,11 @@
 
 					<form asp-action="SendMail">
 						<input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
-						<button class="btn btn-primary" type="submit">Generate Qr Code</button>
+						<button type="submit" class="btn btn-primary" onclick="return confirm('Do you really want to send this mail?')">@(Model.MailSent ? "Resend" : "Send") Mail</button>
 					</form>
 
 				</div>
-
-
 			</div>
-
-
-			<button class="btn btn-primary">@(Model.MailSent ? "Resend" : "Send") Mail</button>
-
 		</div>
 	</div>
 	<br/>

@@ -27,7 +27,6 @@ namespace EventTicketsManager.Models
 		public List<SaveableTicketScan> Scans { get; set; }
 
 		public List<SaveableTicketUserMail> Mails { get; set; }
-		private string Base64Key => "+CffHxKmykUvCrrCILd4rZDBcrIoe3w89jnPNXYi0rU=";
 
 		public SaveableTicketQrCode QrCode { get; set; }
 

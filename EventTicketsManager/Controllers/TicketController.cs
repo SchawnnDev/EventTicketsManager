@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Server;
 
 namespace EventTicketsManager.Controllers
@@ -19,9 +20,12 @@ namespace EventTicketsManager.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
 
-        public TicketController(UserManager<IdentityUser> userManager)
+        private readonly IConfiguration _configuration;
+
+        public TicketController(IConfiguration configuration, UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
+            _configuration = configuration;
         }
 
         // GET: User
@@ -357,7 +361,8 @@ namespace EventTicketsManager.Controllers
 
 				if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User), db))
 					return Details(id);
-						/*
+
+/*
 				var qrCode = new QrCodeGenerator(saveableTicket);
 
 				var saveableQrCode = qrCode.GenerateKeys();

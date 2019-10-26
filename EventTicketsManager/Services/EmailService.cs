@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -33,6 +34,7 @@ namespace EventTicketsManager.Services
                 PlainTextContent = message,
                 HtmlContent = message
             };
+			//msg.AddAttachment(new MemoryStream(fileByteArray));
             msg.AddTo(new EmailAddress(email));
 
             // Disable click tracking.
