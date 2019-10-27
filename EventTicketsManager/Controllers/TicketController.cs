@@ -366,7 +366,31 @@ namespace EventTicketsManager.Controllers
 
 				var mail = new MailGenerator(saveableTicket);
 
-				mail.SendMailAsync(_configuration["SendGridKey"]).Wait();
+				// gen qr code
+				SaveableTicketQrCode ticketQrCode;
+
+				if (db.QrCodes.Any(t => t.Ticket.Id == id))
+				{
+					ticketQrCode = db.QrCodes.Where(t => t.Ticket.Id == id).Include(t => t.Ticket).Single();
+				}
+				else
+				{
+					var qrCode = new QrCodeGenerator(saveableTicket);
+
+					var saveableQrCode = qrCode.GenerateKeys();
+
+					saveableQrCode.CreatorId = _userManager.GetUserId(User);
+
+					db.Tickets.Attach(saveableQrCode.Ticket);
+
+					db.QrCodes.Add(saveableQrCode);
+
+					db.SaveChanges();
+
+					ticketQrCode = saveableQrCode;
+				}
+
+				mail.SendMailAsync(_configuration["SendGridKey"], ticketQrCode).Wait();
 
 				db.TicketUserMails.Add(new SaveableTicketUserMail(saveableTicket, _userManager.GetUserId(User), DateTime.Now));
 

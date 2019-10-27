@@ -21,7 +21,7 @@ namespace Library.Mail
 			Ticket = ticket;
 		}
 
-		public async Task SendMailAsync(string apiKey)
+		public async Task SendMailAsync(string apiKey, SaveableTicketQrCode qrCode)
 		{
 			var client = new SendGridClient(apiKey);
 			var from = new EmailAddress(Ticket.Event.Email, Ticket.Event.Name);
@@ -29,7 +29,7 @@ namespace Library.Mail
 			var to = new EmailAddress(Ticket.Email);
 			var msg = MailHelper.CreateSingleEmail(from, to, subject, "", GetHtmlContent());
 
-			var pdf = new PdfGenerator();
+			var pdf = new PdfGenerator(qrCode);
 
 			await msg.AddAttachmentAsync($"{Ticket.FirstName}-{Ticket.LastName}-{Ticket.Event.Name}-Ticket.pdf", new MemoryStream(pdf.Generate()));
 
