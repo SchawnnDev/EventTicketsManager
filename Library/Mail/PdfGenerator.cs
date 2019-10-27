@@ -22,17 +22,15 @@ namespace Library.Mail
 			{
 				GlobalSettings = {
 					ColorMode = ColorMode.Color,
-					Orientation = Orientation.Landscape,
+					Orientation = Orientation.Portrait,
 					PaperSize = PaperKind.A4Plus,
-					Out = Path.GetTempFileName()
-
-		},
+				},
 				Objects = {
 					new ObjectSettings() {
 						PagesCount = true,
 						HtmlContent = @"Lorem ipsum dolor sit amet, consectetur adipiscing elit. In consectetur mauris eget ultrices  iaculis. Ut                               odio viverra, molestie lectus nec, venenatis turpis.",
 						WebSettings = { DefaultEncoding = "utf-8" },
-						HeaderSettings = { FontSize = 9, Right = "Page [page] of [toPage]", Line = true, Spacing = 2.812 }
+					//	HeaderSettings = { FontSize = 9, Right = "Page [page] of [toPage]", Line = true, Spacing = 2.812 }
 					}
 				}
 			};

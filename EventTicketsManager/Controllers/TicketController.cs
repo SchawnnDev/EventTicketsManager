@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventTicketsManager.Models;
+using EventTicketsManager.Services;
 using Library.Api;
+using Library.Mail;
 using Library.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -354,26 +356,21 @@ namespace EventTicketsManager.Controllers
 
 				if (!db.Tickets.Any(t => t.Id == id))
 					return Details(id);
-				if (db.QrCodes.Any(t => t.Ticket.Id == id))
-					return Details(id);
+				//	if (db.QrCodes.Any(t => t.Ticket.Id == id))
+				//	return Details(id);
 
 				var saveableTicket = db.Tickets.Where(t => t.Id == id).Include(t => t.Event).Single();
 
 				if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User), db))
 					return Details(id);
 
-/*
-				var qrCode = new QrCodeGenerator(saveableTicket);
+				var mail = new MailGenerator(saveableTicket);
 
-				var saveableQrCode = qrCode.GenerateKeys();
+				mail.SendMailAsync(_configuration["SendGridKey"]).Wait();
 
-				saveableQrCode.CreatorId = _userManager.GetUserId(User);
+				db.TicketUserMails.Add(new SaveableTicketUserMail(saveableTicket, _userManager.GetUserId(User), DateTime.Now));
 
-				db.Tickets.Attach(saveableQrCode.Ticket);
-
-				db.QrCodes.Add(saveableQrCode);
-
-				db.SaveChanges(); */
+				db.SaveChanges();
 
 				return Details(id);
 			}

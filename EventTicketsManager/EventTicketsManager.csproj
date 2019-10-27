@@ -25,4 +25,9 @@
     <ProjectReference Include="..\Library\Library.csproj" />
     <ProjectReference Include="..\Server\Server.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Services\MailModel.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

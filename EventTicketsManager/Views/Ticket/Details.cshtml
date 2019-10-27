@@ -49,8 +49,8 @@
 					<td>@Model.Ticket.LastName</td>
 				</tr>
 				<tr>
-					<td>Gender</td>
-					<td>@(((Gender) Model.Ticket.Gender).ToString())</td>
+					<td>Email</td>
+					<td>@Model.Ticket.Email</td>
 				</tr>
 				<tr>
 					<td>To Pay</td>
@@ -90,14 +90,13 @@
 
 					@if (Model.HasQrCode())
 					{
-						<button id="qrcodebtn" class="btn btn-primary" type="submit" onclick="displayQrCode('@Model.GetQrCodeContent()')">Display Qr Code</button>
+						<button id="qrcodebtn" class="btn btn-primary" onclick="displayQrCode('@Model.GetQrCodeContent()')">Display Qr Code</button>
 					}
 					else
 					{
 						<form asp-action="GenerateKey">
-
 							<input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
-
+							<button id="qrcodebtn" class="btn btn-primary" type="submit" onclick="generateQrCode()">Generate Qr Code</button>
 						</form>
 					}
 				</div>
@@ -107,7 +106,7 @@
 
 					<form asp-action="SendMail">
 						<input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
-						<button type="submit" class="btn btn-primary" onclick="return confirm('Do you really want to send this mail?')">@(Model.MailSent ? "Resend" : "Send") Mail</button>
+						<button id="mailsendbtn" type="submit" class="btn btn-primary" onclick="return sendMail()">@(Model.MailSent ? "Resend" : "Send") Mail</button>
 					</form>
 
 				</div>
@@ -226,20 +225,13 @@
 
 	<script type="text/javascript">
 
-		function copyApiKey() {
-			/* Get the text field */
-			var copyText = document.getElementById("apiKey");
-
-			/* Select the text field */
-			copyText.select();
-			copyText.setSelectionRange(0, 99999); /*For mobile devices*/
-
-			/* Copy the text inside the text field */
-			document.execCommand("copy");
-
-			/* Alert the copied text */
-			alert("Api Key copied!");
+		function sendMail() {
+			if (confirm('Do you really want to @(Model.MailSent ? "re":"")send this mail?')) {
+				$("mailsendbtn").attr("disabled", true);
+				return true;
+			} else return false;
 		}
+
 
 		@if (Model.HasQrCode())
 		{
@@ -251,6 +243,10 @@
 			@:	$("#qrcodebtn").remove();
 			@:	qrCodeGenerated = true;
 			@:}
+		}
+		else
+		{
+			@:function generateQrCode() { $("qrcodebtn").attr("disabled", true); }
 		}
 	</script>
 }

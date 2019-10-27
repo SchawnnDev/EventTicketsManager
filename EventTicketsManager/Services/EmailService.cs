@@ -29,7 +29,7 @@ namespace EventTicketsManager.Services
             var client = new SendGridClient(apiKey);
             var msg = new SendGridMessage()
             {
-                From = new EmailAddress("paul.meyer@schawnndev.fr", Options.SendGridUser),
+                From = new EmailAddress("paul.meyer@schawnndev.fr", "Events Tickets Manager"),
                 Subject = subject,
                 PlainTextContent = message,
                 HtmlContent = message
