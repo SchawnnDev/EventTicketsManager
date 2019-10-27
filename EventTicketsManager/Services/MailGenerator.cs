@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EventTicketsManager.Services;
 using Library.Pdf;
+using Library.Threads;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Server;
@@ -32,7 +33,19 @@ namespace Library.Mail
 
 			var pdf = new PdfGenerator(qrCode);
 
-			await msg.AddAttachmentAsync($"{Ticket.FirstName}-{Ticket.LastName}-{Ticket.Event.Name}-Ticket.pdf", new MemoryStream(pdf.Generate()));
+			var pdfBytes = pdf.Generate();
+
+			await using (var stream = new EchoStream())
+			{
+
+				await stream.WriteAsync(pdfBytes);
+
+				await msg.AddAttachmentAsync($"{Ticket.FirstName}-{Ticket.LastName}-{Ticket.Event.Name}-Ticket.pdf", stream);
+
+				stream.Close();
+				await stream.DisposeAsync();
+
+			}
 
 			await client.SendEmailAsync(msg);
 		}
