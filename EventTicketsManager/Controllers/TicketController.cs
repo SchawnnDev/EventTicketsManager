@@ -61,8 +61,13 @@ namespace EventTicketsManager.Controllers
             return View("Index", new TicketIndexModel(events, error));
         }
 
-        // GET: User/Details/5
         public ActionResult Details(int id)
+        {
+	        return Details(id, null);
+        }
+
+        // GET: User/Details/5
+        private ActionResult Details(int id, string error)
         {
             SaveableTicket ticket;
             string creatorEmail;
@@ -81,7 +86,7 @@ namespace EventTicketsManager.Controllers
 				qrCode = db.QrCodes.SingleOrDefault(t=>t.Ticket.Id == id);
             }
 
-			return View("Details", new TicketDetailsModel(ticket, scans, mails, qrCode, creatorEmail));
+			return View("Details", new TicketDetailsModel(ticket, scans, mails, qrCode, creatorEmail, error));
         }
 
         // GET: User/Create
@@ -390,7 +395,15 @@ namespace EventTicketsManager.Controllers
 					ticketQrCode = saveableQrCode;
 				}
 
-				mail.SendMailAsync(_configuration["SendGridKey"], ticketQrCode).Wait();
+				try
+				{
+					mail.SendMailAsync(_configuration["SendGridKey"], ticketQrCode).Wait(TimeSpan.FromSeconds(5));
+				}
+				catch (OperationCanceledException ex)
+				{
+					return Details(id, ex.Message);
+				}
+				
 
 				db.TicketUserMails.Add(new SaveableTicketUserMail(saveableTicket, _userManager.GetUserId(User), DateTime.Now));
 
@@ -400,7 +413,7 @@ namespace EventTicketsManager.Controllers
 			}
 			catch (Exception e)
 			{
-				return Details(id);
+				return Details(id, e.Message);
 			}
 		}
     }

@@ -29,8 +29,10 @@ namespace EventTicketsManager.Models
 		public List<SaveableTicketUserMail> Mails { get; set; }
 
 		public SaveableTicketQrCode QrCode { get; set; }
+		
+		public string Error { get; set; }
 
-		public TicketDetailsModel(SaveableTicket ticket, List<SaveableTicketScan> scans, List<SaveableTicketUserMail> mails, SaveableTicketQrCode qrCode, string creatorEmail)
+		public TicketDetailsModel(SaveableTicket ticket, List<SaveableTicketScan> scans, List<SaveableTicketUserMail> mails, SaveableTicketQrCode qrCode, string creatorEmail, string error)
         {
             Ticket = ticket;
 			Scans = scans;
@@ -41,6 +43,7 @@ namespace EventTicketsManager.Models
             MailsSent = mails.Count;
             CreatorEmail = creatorEmail;
             QrCode = qrCode;
+            Error = error;
         }
 
 		public bool HasQrCode() => QrCode != null;
@@ -49,5 +52,7 @@ namespace EventTicketsManager.Models
 			? new QrCodeGenerator(QrCode).Get()
 			: "";
 
-    }
+		public bool IsError() => !string.IsNullOrEmpty(Error);
+
+	}
 }

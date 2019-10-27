@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using EventTicketsManager.Services;
+using Library.Pdf;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Server;
