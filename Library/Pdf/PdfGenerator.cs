@@ -28,7 +28,13 @@ namespace Library.Pdf
 			using var qrGenerator = new QRCodeGenerator();
 			var qrCodeData = qrGenerator.CreateQrCode(generator.Get(), QRCodeGenerator.ECCLevel.M);
 			var qrCode = new Base64QRCode(qrCodeData);
-			return qrCode.GetGraphic(20);
+			
+			var builder = new StringBuilder();
+			builder.Append("<img src=\"");
+			builder.Append(qrCode.GetGraphic(20));
+			builder.Append("\" alt=\"\" style=\"width:200px;height:200px;\"></img>");
+
+			return builder.ToString();
 		}
 
 		private string GetHtmlContent()
@@ -45,7 +51,7 @@ namespace Library.Pdf
 				.Replace("{event.startDate}", $"{ticket.Event.Start:D}")
 				.Replace("{event.startHour}", $"{ticket.Event.Start:HH:mm}".Replace(":","h"))
 				.Replace("{ticket.date}", $"{ticket.CreatedAt:dd/MM/YYYY}".Replace("YYYY", Math.Abs(ticket.CreatedAt.Year - 2000).ToString()))
-				.Replace("{event.headerUrl}", ticket.Event.HeaderUrl)
+				.Replace("{event.telephoneNumber}", ticket.Event.TelephoneNumber)
 				.Replace("{ticket.id}", ticket.Id.ToString())
 				.Replace("{ticket.firstName}", ticket.FirstName)
 				.Replace("{ticket.lastName}", ticket.LastName)
