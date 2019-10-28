@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using DinkToPdf.Contracts;
 using EventTicketsManager.Services;
 using Library.Pdf;
 using Library.Threads;
@@ -11,17 +12,19 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using Server;
 
-namespace Library.Mail
+namespace EventTicketsManager.Services
 {
 	public class MailGenerator
 	{
 
 		private SaveableTicket Ticket { get;}
+        private readonly IConverter _converter;
 
-		public MailGenerator(SaveableTicket ticket)
+		public MailGenerator(SaveableTicket ticket, IConverter converter)
 		{
 			Ticket = ticket;
-		}
+            _converter = converter;
+        }
 
 		public async Task SendMailAsync(string apiKey, SaveableTicketQrCode qrCode)
 		{
@@ -31,28 +34,21 @@ namespace Library.Mail
 			var to = new EmailAddress(Ticket.Email);
 			var msg = MailHelper.CreateSingleEmail(from, to, subject, "", GetHtmlContent());
 
-			var pdf = new PdfGenerator(qrCode);
+			var pdf = new PdfGenerator(qrCode, _converter);
 
 			var pdfBytes = pdf.Generate();
 
-			await using (var stream = new EchoStream())
+			await using (var stream = new MemoryStream(pdfBytes))
 			{
-
-				await stream.WriteAsync(pdfBytes);
-
-				await msg.AddAttachmentAsync($"{Ticket.FirstName}-{Ticket.LastName}-{Ticket.Event.Name}-Ticket.pdf", stream);
-
-				stream.Close();
-				await stream.DisposeAsync();
-
-			}
+                await msg.AddAttachmentAsync($"{Ticket.FirstName}-{Ticket.LastName}-{Ticket.Event.Name}-Ticket.pdf", stream);
+            }
 
 			await client.SendEmailAsync(msg);
 		}
 
 		private string GetHtmlContent()
 		{
-			var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Services\MailModel.html");
+			var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Models\Html\MailModel.html");
 			var content = File.ReadAllText(path);
 			var toPay = Ticket.ToPay.ToString("c");
 			content = content.Replace("{event.name}", Ticket.Event.Name)

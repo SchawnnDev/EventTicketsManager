@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DinkToPdf.Contracts;
 using EventTicketsManager.Models;
 using EventTicketsManager.Services;
 using Library;
 using Library.Api;
-using Library.Mail;
 using Library.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -25,10 +25,13 @@ namespace EventTicketsManager.Controllers
 
         private readonly IConfiguration _configuration;
 
-        public TicketController(IConfiguration configuration, UserManager<IdentityUser> userManager)
+        private readonly IConverter _converter;
+
+        public TicketController(IConfiguration configuration, IConverter converter, UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _converter = converter;
         }
 
         // GET: User
@@ -82,8 +85,8 @@ namespace EventTicketsManager.Controllers
 
                 ticket = db.Tickets.Include(t=>t.Event).Single(t=>t.Id == id);
                 creatorEmail = db.Users.Any(t=>t.Id == ticket.CreatorId) ? db.Users.Where(t => t.Id == ticket.CreatorId).Select(t => t.Email).Single() : "Not exists anymore";
-                scans = db.TicketScans.Where(t => t.Ticket.Id == id).OrderByDescending(t => t.Date).Select(t => new SaveableTicketScan(t.Ticket, db.Users.Any(e=>e.Id == t.CreatorId) ? db.Users.Where(e=>e.Id ==  t.CreatorId).Select(e=>e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
-                mails = db.TicketUserMails.Where(t => t.Ticket.Id == id).OrderByDescending(t => t.Date).Select(t => new SaveableTicketUserMail(t.Ticket, db.Users.Any(e => e.Id == t.CreatorId) ? db.Users.Where(e => e.Id == t.CreatorId).Select(e => e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
+                scans = db.TicketScans.Where(t => t.Ticket.Id == id).OrderBy(t => t.Date).Select(t => new SaveableTicketScan(t.Ticket, db.Users.Any(e=>e.Id == t.CreatorId) ? db.Users.Where(e=>e.Id ==  t.CreatorId).Select(e=>e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
+                mails = db.TicketUserMails.Where(t => t.Ticket.Id == id).OrderBy(t => t.Date).Select(t => new SaveableTicketUserMail(t.Ticket, db.Users.Any(e => e.Id == t.CreatorId) ? db.Users.Where(e => e.Id == t.CreatorId).Select(e => e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
 				qrCode = db.QrCodes.SingleOrDefault(t=>t.Ticket.Id == id);
             }
 
@@ -403,7 +406,7 @@ namespace EventTicketsManager.Controllers
 				if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User), db))
 					return Details(id);
 
-				var mail = new MailGenerator(saveableTicket);
+				var mail = new MailGenerator(saveableTicket, _converter);
 
 				// gen qr code
 				SaveableTicketQrCode ticketQrCode;

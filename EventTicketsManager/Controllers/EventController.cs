@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using DinkToPdf.Contracts;
 using EventTicketsManager.Models;
+using EventTicketsManager.Services;
+using Library;
 using Library.Api;
+using Library.Enums;
+using Library.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Server;
 
 namespace EventTicketsManager.Controllers
@@ -17,9 +23,14 @@ namespace EventTicketsManager.Controllers
     public class EventController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IConfiguration _configuration;
+        private readonly IConverter _converter;
 
-        public EventController(UserManager<IdentityUser> userManager)
+        public EventController(IConfiguration configuration, IConverter converter,
+            UserManager<IdentityUser> userManager)
         {
+            _configuration = configuration;
+            _converter = converter;
             _userManager = userManager;
         }
 
@@ -49,20 +60,36 @@ namespace EventTicketsManager.Controllers
         }
 
         // GET: Event/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(int id) => Details(id, null, false);
+
+        private ActionResult Details(int id, string message, bool error)
         {
             var model = new EventDetailsModel();
 
             using (var db = new ServerContext())
             {
-
                 if (db.Events.Any(t => t.Id == id))
                     model.Event = db.Events.Find(id);
                 model.EventUsers = new List<EventUserModel>(db.EventUsers.Where(t => t.Event.Id == id).ToList()
                     .Select(t => new EventUserModel(t,
                         db.Users.Where(e => e.Id == t.UserId).Select(e => e.Email).Single() ?? "null@null.null"))
                     .ToList());
+
+                model.TicketsScanned = db.TicketScans.Count(t => t.Ticket.Event.Id == id);
+                model.TicketsMailSent = db.TicketUserMails.Count(t => t.Ticket.Event.Id == id);
+                model.TicketsCreated = db.Tickets.Count(t => t.Event.Id == id);
+                model.TicketsGenreCount = new Dictionary<Gender, int>();
+
+                foreach (Gender gender in Enum.GetValues(typeof(Gender)))
+                {
+                    var genderInt = (int) gender;
+                    model.TicketsGenreCount.Add(gender,
+                        db.Tickets.Count(t => t.Event.Id == id && t.Gender == genderInt));
+                }
             }
+
+            model.Message = message;
+            model.Error = error;
 
             return model.Event != null ? View("Details", model) : View("Index");
         }
@@ -70,7 +97,7 @@ namespace EventTicketsManager.Controllers
         // GET: Event/Create
         public ActionResult Create()
         {
-            return View(new SaveableEvent{Start = DateTime.Now, End = DateTime.Now.AddDays(1)});
+            return View(new SaveableEvent {Start = DateTime.Now, End = DateTime.Now.AddDays(1)});
         }
 
         // POST: Event/Create
@@ -132,7 +159,8 @@ namespace EventTicketsManager.Controllers
 
                     var saveableEvent = db.Events.Single(t => t.Id == id);
 
-                    if (saveableEvent.CreatorId != _userManager.GetUserId(User)) // Check if editor is owner of the event.
+                    if (saveableEvent.CreatorId != _userManager.GetUserId(User)
+                    ) // Check if editor is owner of the event.
                         return View("Index");
 
                     FillEvent(saveableEvent, collection);
@@ -351,6 +379,71 @@ namespace EventTicketsManager.Controllers
             catch (Exception e)
             {
                 return Details(eventId);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> SendTicketsNotSent(int id, IFormCollection collection)
+        {
+            try
+            {
+                await using var db = new ServerContext();
+
+                if (!DbUtils.IsEventExistingAndUserEventMember(id, _userManager.GetUserId(User), db))
+                    return Details(id, "Event is not existing or you're not owner/collaborator of this event", true);
+
+                var saveableEvent = db.Events.Find(id);
+                var notSentTickets = db.Tickets
+                    .Where(t => t.Event.Id == id && !db.TicketUserMails.Any(e => e.Ticket.Id == t.Id)).ToList();
+                var qrCodes = new List<SaveableTicketQrCode>();
+
+                foreach (var notSentTicket in notSentTickets)
+                {
+                    if (db.QrCodes.Any(t => t.Ticket.Id == notSentTicket.Id))
+                    {
+                        qrCodes.Add(db.QrCodes.Where(t => t.Ticket.Id == notSentTicket.Id).Include(t => t.Ticket)
+                            .Single());
+                    }
+                    else
+                    {
+                        var qrCode = new QrCodeGenerator(notSentTicket);
+
+                        var saveableQrCode = qrCode.GenerateKeys();
+
+                        saveableQrCode.CreatorId = _userManager.GetUserId(User);
+
+                        db.Tickets.Attach(saveableQrCode.Ticket);
+
+                        qrCodes.Add(saveableQrCode);
+                    }
+                }
+
+                db.QrCodes.AddRange(qrCodes.Where(t => t.Id == 0).ToList());
+
+                await db.SaveChangesAsync(); // Save to receive ID
+
+                var multipleMailGenerator = new MultipleMailGenerator(saveableEvent,
+                    qrCodes.Select(t => new MultipleMail {QrCode = t, Ticket = t.Ticket}).ToList(), _converter, db,
+                    _configuration["SendGridKey"], _userManager.GetUserId(User));
+
+
+                try
+                {
+                    await multipleMailGenerator.SendAllMailsAsync();
+                }
+                catch (OperationCanceledException ex)
+                {
+                    return Details(id, ex.Message, true);
+                }
+
+                await db.SaveChangesAsync();
+
+                return Details(id, $"{qrCodes.Count} emails were successfully sent!", false);
+            }
+            catch (Exception e)
+            {
+                return Details(id, e.Message, true);
             }
         }
     }

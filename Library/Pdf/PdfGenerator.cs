@@ -4,7 +4,9 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using DinkToPdf;
+using DinkToPdf.Contracts;
 using Library.Api;
+using Microsoft.AspNetCore.Html;
 using QRCoder;
 using Server;
 
@@ -13,16 +15,20 @@ namespace Library.Pdf
 	public class PdfGenerator
 	{
 
-		private readonly SynchronizedConverter Converter;
+		private readonly IConverter Converter;
 		private readonly SaveableTicketQrCode QrCode;
+        public string HtmlContent { get; set; }
 
-		public PdfGenerator(SaveableTicketQrCode qrCode)
-		{
-			Converter = new SynchronizedConverter(new PdfTools());
-			QrCode = qrCode;
-		}
+		public PdfGenerator(SaveableTicketQrCode qrCode, IConverter converter) : this(qrCode, converter, null){ }
 
-		private string GenerateQrCode()
+        public PdfGenerator(SaveableTicketQrCode qrCode, IConverter converter, string htmlContent)
+        {
+            Converter = converter;
+            QrCode = qrCode;
+            HtmlContent = htmlContent;
+        }
+
+        private string GenerateQrCode()
 		{
 			var generator = new QrCodeGenerator(QrCode);
 			using var qrGenerator = new QRCodeGenerator();
@@ -34,10 +40,13 @@ namespace Library.Pdf
 		private string GetHtmlContent()
 		{
 			var ticket = QrCode.Ticket;
-			var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Services\PdfModel.html");
-			var content = File.ReadAllText(path);
-			var toPay = ticket.ToPay.ToString("c");
-			content = content.Replace("{event.name}", ticket.Event.Name)
+            if (string.IsNullOrEmpty(HtmlContent))
+            {
+                var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Models\Html\PdfModel.html");
+                HtmlContent = File.ReadAllText(path);
+            }
+            var toPay = ticket.ToPay.ToString("c");
+            return HtmlContent.Replace("{event.name}", ticket.Event.Name)
 				.Replace("{event.email}", ticket.Event.Email)
 				.Replace("{event.postalCodeCity}", $"{ticket.Event.PostalCode} {ticket.Event.CityName}")
 				.Replace("{event.address}", string.IsNullOrEmpty(ticket.Event.AddressNumber) || ticket.Event.AddressNumber.Equals("0") ? ticket.Event.AddressName : $"{ticket.Event.AddressNumber} {ticket.Event.AddressName}")
@@ -56,8 +65,7 @@ namespace Library.Pdf
 				.Replace("{ticket.hasToPay}", ticket.HasPaid ? "Vous avez déjà payé ce billet.":"Votre billet n'a pas encore été payé.")
 				.Replace("{ticket.totalPrice}", toPay)
 				.Replace("{ticket.qrcode}", GenerateQrCode());
-
-			return content;
+			
 		}
 
 		public byte[] Generate()
