@@ -57,8 +57,6 @@ namespace Library.Pdf
 				.Replace("{ticket.totalPrice}", toPay)
 				.Replace("{ticket.qrcode}", GenerateQrCode());
 
-		//	File.WriteAllLines(@"C:\Users\Meyer\Desktop\index.html", new []{content});
-
 			return content;
 		}
 
@@ -72,7 +70,7 @@ namespace Library.Pdf
 					PaperSize = PaperKind.A4Plus,
 				},
 				Objects = {
-					new ObjectSettings() {
+					new ObjectSettings {
 						PagesCount = true,
 						HtmlContent = GetHtmlContent(),
 						WebSettings = { DefaultEncoding = "utf-8" },

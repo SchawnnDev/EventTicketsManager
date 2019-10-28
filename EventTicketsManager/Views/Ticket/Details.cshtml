@@ -9,8 +9,6 @@
 
 @section Styles {
 	<style type="text/css">
-
-
 		.tableFixHead { /*
 		overflow-y: auto;
 		height: 350px; */
@@ -218,7 +216,11 @@
 	<div class="row">
 		@Html.ActionLink("Back to list", "List", new {id = Model.Ticket.Event.Id}, new {@class = "btn btn-info btn-lg"})
 		@Html.ActionLink("Edit", "Edit", new {id = Model.Ticket.Id}, new {@class = "btn btn-primary btn-lg"})
-		@Html.ActionLink("Delete", "Delete", new {id = Model.Ticket.Id}, new {@class = "btn btn-danger btn-lg"})
+		
+		<form asp-action="Delete"  asp-route-id="@Model.Ticket.Id">
+			<button type="submit" class="btn btn-danger btn-lg" onclick="return confirm('Do you really want to delete this ticket?')">Delete</button>
+		</form>
+
 	</div>
 
 </div>
@@ -230,7 +232,6 @@
 	@if (Model.HasQrCode())
 	{
 		@Html.Raw("<script type=\"text/javascript\" src=\"/lib/qrcode/dist/qrcode.js\"></script>")
-		;
 	}
 
 	<script type="text/javascript">

@@ -39,9 +39,9 @@ namespace EventTicketsManager.Models
             TicketScanNumber = scans.Count;
             TicketScanned =  TicketScanNumber != 0;
             Mails = mails;
-            MailSent = MailsSent != 0;
-            MailsSent = mails.Count;
-            CreatorEmail = creatorEmail;
+			MailsSent = mails.Count;
+			MailSent = MailsSent != 0;
+			CreatorEmail = creatorEmail;
             QrCode = qrCode;
             Error = error;
         }

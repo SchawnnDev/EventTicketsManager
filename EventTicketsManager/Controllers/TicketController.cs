@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventTicketsManager.Models;
 using EventTicketsManager.Services;
+using Library;
 using Library.Api;
 using Library.Mail;
 using Library.Utils;
@@ -150,17 +151,22 @@ namespace EventTicketsManager.Controllers
                     }
                     else
                     {
-                        return List(eventId);
+                        return List(eventId, "Can't get email!");
                     }
+
+                    if (!MailUtils.IsEmailValid(saveableTicket.Email))
+	                    return Create(saveableTicket, "Email is not valid!");
 
                     var saveableEvent = db.Events.Find(eventId);
 
                     saveableTicket.Event = saveableEvent;
-                    saveableTicket.CreatorId = saveableTicket.UpdaterId = _userManager.GetUserId(User);
+                    saveableTicket.CreatorId = saveableTicket.UpdaterId = user;
                     saveableTicket.CreatedAt = saveableTicket.UpdatedAt = DateTime.Now;
 
                     db.Tickets.Add(saveableTicket);
-                    db.SaveChanges();
+
+                    Logger.SendLog($"Created ticket for {saveableTicket.Email}", user, db);
+					db.SaveChanges();
                 }
 
 
@@ -212,7 +218,9 @@ namespace EventTicketsManager.Controllers
                     saveableTicket.UpdatedAt = DateTime.Now;
 
                     db.Events.Attach(saveableTicket.Event);
-                    db.SaveChanges();
+
+                    Logger.SendLog($"Edited ticket n°{saveableTicket.Id}", _userManager.GetUserId(User), db);
+					db.SaveChanges();
                 }
 
 
@@ -253,16 +261,40 @@ namespace EventTicketsManager.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
         {
-            try
-            {
-                // TODO: Add delete logic here
+	        var eventId = 0;
+	      
+	        try
+	        {
+		        using var db = new ServerContext();
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+				if(!DbUtils.IsTicketExisting(id, db))
+					return Details(id, "Ticket does not exists.");
+				var ticket = db.Tickets.Include(t=>t.Event).Single(t => t.Id == id);
+				
+				if(!DbUtils.IsEventExistingAndUserEventMember(ticket.Event.Id,_userManager.GetUserId(User), db))
+					return Details(id, "Event is not existing or you're not owner/collaborator of this event");
+
+
+				if (db.QrCodes.Any(t => t.Ticket.Id == id))
+					db.QrCodes.Remove(db.QrCodes.Single(t => t.Ticket.Id == id));
+
+				db.TicketUserMails.RemoveRange(db.TicketUserMails.Where(t => t.Ticket.Id == id).ToArray());
+
+				db.TicketScans.RemoveRange(db.TicketScans.Where(t=>t.Ticket.Id == id).ToArray());
+
+		        db.Remove(ticket);
+
+				Logger.SendLog($"Deleted ticket n°{ticket.Id}: {ticket.Email}",_userManager.GetUserId(User), db);
+
+		        db.SaveChanges();
+
+		        return List(ticket.Event.Id);
+	        }
+	        catch (Exception e)
+	        {
+		        return Details(id, e.Message);
+	        }
+
         }
 
 		// POST: User/GenerateKey/5
@@ -305,7 +337,9 @@ namespace EventTicketsManager.Controllers
 
 		        db.QrCodes.Add(saveableQrCode);
 
-		        db.SaveChanges();
+		        Logger.SendLog($"Generated QR Code for ticket n°{saveableQrCode.Ticket.Id}", _userManager.GetUserId(User), db);
+
+				db.SaveChanges();
 
 		        return Details(id);
 	        }
@@ -403,9 +437,10 @@ namespace EventTicketsManager.Controllers
 				{
 					return Details(id, ex.Message);
 				}
-				
 
 				db.TicketUserMails.Add(new SaveableTicketUserMail(saveableTicket, _userManager.GetUserId(User), DateTime.Now));
+
+				Logger.SendLog($"Sent mail for ticket n°{saveableTicket.Id}", _userManager.GetUserId(User), db);
 
 				db.SaveChanges();
 
