@@ -158,6 +158,7 @@
 			line-height: 0;
 			mso-hide: all;
 		}
+
 	</style>
 </head>
 <body style="width: 100%; font-family: arial, 'helvetica neue', helvetica, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; padding: 0; Margin: 0;">
@@ -182,7 +183,7 @@
 													<table width="100%" cellspacing="0" cellpadding="0" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; border-spacing: 0px;">
 														<tr style="border-collapse: collapse;">
 															<td align="left" style="padding: 0; Margin: 0;">
-																<h1 style="Margin: 0; line-height: 36px; mso-line-height-rule: exactly; font-family: verdana, geneva, sans-serif; font-size: 30px; font-style: normal; font-weight: normal; color: #333333;">{event.name}</h1>
+																<h1 style="Margin: 0; line-height: 36px; mso-line-height-rule: exactly; font-family: verdana, geneva, sans-serif; font-size: 35px; font-style: normal; font-weight: normal; color: #333333;">{event.name}</h1>
 															</td>
 														</tr>
 														<tr style="border-collapse: collapse;">
@@ -208,33 +209,15 @@
 											<td width="275" class="es-m-p20b" align="left" style="padding: 0; Margin: 0;">
 												<table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; border-spacing: 0px;">
 													<tr style="border-collapse: collapse;">
-														<td align="center" style="Margin: 0; padding-top: 25px; padding-bottom: 25px; padding-left: 40px; padding-right: 40px;">
-															<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 15px; font-family: verdana, geneva, sans-serif; line-height: 23px; color: #333333;">{event.startDate}</p>
-															<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 15px; font-family: verdana, geneva, sans-serif; line-height: 23px; color: #333333;">{event.startHour}</p>
-														</td>
+														<td align="center" style="Margin: 0; padding-top: 25px; padding-bottom: 25px; padding-left: 15px; padding-right: 15px;">
+															<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 15px; font-family: verdana, geneva, sans-serif; line-height: 23px; color: #333333;">{event.startDate} à {event.startHour}</p>
+															<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 15px; font-family: verdana, geneva, sans-serif; line-height: 23px; color: #333333;">{event.address} - {event.postalCodeCity}</p>
+															</td>
 													</tr>
 												</table>
 											</td>
 										</tr>
 									</table>
-									<!--[if mso]></td><td width="10"></td>
-									<td width="275" valign="top">
-										<![endif]-->
-										<table cellpadding="0" cellspacing="0" class="es-right" align="right" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; border-spacing: 0px; float: right;">
-											<tr style="border-collapse: collapse;">
-												<td width="275" align="left" style="padding: 0; Margin: 0;">
-													<table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; border-spacing: 0px;">
-														<tr style="border-collapse: collapse;">
-															<td align="left" style="Margin: 0; padding-top: 25px; padding-bottom: 25px; padding-left: 40px; padding-right: 40px;">
-																<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 15px; font-family: arial, 'helvetica neue', helvetica, sans-serif; line-height: 23px; color: #333333;">{event.address}</p>
-																<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 13px; font-family: arial, 'helvetica neue', helvetica, sans-serif; line-height: 20px; color: #333333;">{event.postalCodeCity}</p>
-															</td>
-														</tr>
-													</table>
-												</td>
-											</tr>
-										</table>
-										<!--[if mso]></td></tr></table><![endif]-->
 									</td>
 								</tr>
 								<tr style="border-collapse: collapse;">
@@ -269,15 +252,15 @@
 														<td style="padding: 0; Margin: 0;">
 															<div class="container">
 																<rectangle style="border: 2px solid #000000; padding: 10px; margin-right: 10px;">
-																	Billet n°{ticket.id}
+																	<p style="font-family: verdana, geneva, sans-serif; font-size: 35px;">Billet n°{ticket.id}</p>
 																</rectangle>
 																<br>
 																<br>
-																<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 14px; font-family: arial, 'helvetica neue', helvetica, sans-serif; line-height: 21px; color: #333333;"><b>Date:</b> {ticket.date}<br><b>Nom:</b> {ticket.firstName} {ticket.lastName}<br><b>Prix TTC:</b> {ticket.toPay}<br><br> {ticket.hasToPay} </p>
+																<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 14px; font-family: verdana, geneva, sans-serif; line-height: 21px; color: #333333;"><b>Date:</b> {ticket.date}<br><b>Nom:</b> {ticket.firstName} {ticket.lastName}<br><b>Prix TTC:</b> {ticket.toPay}<br><br> {ticket.hasToPay} </p>
 																<br>
-																<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 14px; font-family: arial, 'helvetica neue', helvetica, sans-serif; line-height: 21px; color: #333333;"><b>Contact organisateur:</b><br> {event.email}<br> {event.telephoneNumber}</p>
+																<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 14px; font-family: verdana, geneva, sans-serif; line-height: 21px; color: #333333;"><b>Contact organisateur:</b><br> {event.email}<br> {event.telephoneNumber}</p>
 																<br>
-																<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 14px; font-family: arial, 'helvetica neue', helvetica, sans-serif; line-height: 21px; color: #333333;"><b>Informations:</b><br> {event.emailContent} </p>
+																<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 14px; font-family: verdana, geneva, sans-serif; line-height: 21px; color: #333333;"><b>Informations:</b><br> {event.emailContent} </p>
 															</div>
 														</td>
 													</tr>
@@ -294,7 +277,7 @@
 													<table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; border-spacing: 0px;">
 														<tr style="border-collapse: collapse;">
 															<td style="padding: 0; Margin: 0;">
-																{ticket.qrcode}
+																<img src="data:image/png;base64, {ticket.qrcode}" alt="" style="width: 200px; height: 200px;"/>
 																<br><br>
 																<p style="Margin: 0; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; mso-line-height-rule: exactly; font-size: 10px; font-family: verdana, geneva, sans-serif; line-height: 15px; color: #333333;"> Présentation obligatoire du billet à l'entrée de l'événement. Pour faciliter le scan des billets, merci d'augmenter votre luminosité lors de la présentation du billet. </p>
 															</td>

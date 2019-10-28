@@ -59,7 +59,7 @@ namespace Library.Mail
 				.Replace("{event.email}", Ticket.Event.Email)
 				.Replace("{event.postalCode}", Ticket.Event.PostalCode)
 				.Replace("{event.city}", Ticket.Event.CityName)
-				.Replace("{event.address}", string.IsNullOrEmpty(Ticket.Event.AddressNumber) ? Ticket.Event.AddressName:$"{Ticket.Event.AddressNumber} {Ticket.Event.AddressName}")
+				.Replace("{event.address}", string.IsNullOrEmpty(Ticket.Event.AddressNumber) || Ticket.Event.AddressNumber.Equals("0") ? Ticket.Event.AddressName:$"{Ticket.Event.AddressNumber} {Ticket.Event.AddressName}")
 				.Replace("{event.postalCode}", Ticket.Event.PostalCode)
 				.Replace("{event.start}", $"{Ticket.Event.Start:dd/MM/YYYY à HH:mm}".Replace(":","h").Replace("YYYY", Math.Abs(Ticket.Event.Start.Year - 2000).ToString()))
 				.Replace("{event.end}", $"{Ticket.Event.End:dd/MM/YYYY à HH:mm}".Replace(":", "h").Replace("YYYY", Math.Abs(Ticket.Event.End.Year - 2000).ToString()))
