@@ -104,6 +104,8 @@ namespace EventTicketsManager.Controllers
 
                 var alreadyScanned = db.TicketScans.Any(t => t.Ticket.Id == ticket.Id);
 
+                //TODO: save new scan.
+
                 return Json(new JsonScan(ticket.FirstName, ticket.LastName, ticket.HasPaid, alreadyScanned, ticket.ToPay));
 
             }
