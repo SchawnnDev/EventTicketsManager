@@ -45,5 +45,6 @@ namespace Library.Api
 			return $"{QrCode.Id}§§{Convert.ToBase64String(Encrypted)}".Base64Encode();
 		}
 
-	}
+        public string Decode(string qrCode) => AESEncryption.DecryptStringFromBytes(Convert.FromBase64String(qrCode), QrCode.Key, QrCode.IV);
+    }
 }

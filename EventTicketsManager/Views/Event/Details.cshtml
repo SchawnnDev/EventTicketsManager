@@ -53,7 +53,7 @@
 					</tr>
 					<tr>
 						<td>Ticket Price</td>
-						<td>@Model.Event.EnterPrice€</td>
+						<td>@Model.Event.EnterPrice.ToString("C")</td>
 					</tr>
 					<tr>
 						<td>Tickets Created</td>
@@ -74,66 +74,66 @@
 
 		</div>
 
-		<div class="col-md-6">
+        <div class="col-md-6">
 
-			<h6>Manage collaborators</h6>
+            <h6>Manage collaborators</h6>
 
-			<div class="tableFixHead">
-				<table class="table table-bordered table-striped mb-0">
-					<thead>
-						<tr>
-							<th>
-								N°
-							</th>
-							<th>
-								Email
-							</th>
-							<th>
-								Actions
-							</th>
-						</tr>
-					</thead>
-					<tbody>
+            <div class="tableFixHead">
+                <table class="table table-bordered table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>
+                                N°
+                            </th>
+                            <th>
+                                Email
+                            </th>
+                            <th>
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
 
-						@foreach (var item in Model.EventUsers)
-						{
-							<tr>
-								<td>
-									@(i++)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.Email)
-								</td>
+                        @foreach (var item in Model.EventUsers)
+                        {
+                            <tr>
+                                <td>
+                                    @(i++)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Email)
+                                </td>
 
-								<td>
-									<form asp-action="DeleteEventUser">
-										<input type="number" hidden="hidden" name="Id" value="@item.EventUser.Id" />
-										<input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
-										<button type="submit" class="btn btn-danger" onclick="return confirm('Do you really want to delete this user from the project?')">Delete</button>
-									</form>
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
-			</div>
+                                <td>
+                                    <form asp-action="DeleteEventUser">
+                                        <input type="number" hidden="hidden" name="Id" value="@item.EventUser.Id" />
+                                        <input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
+                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Do you really want to delete this user from the project?')">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
 
-			<form asp-action="AddEventUser">
-				<div class="input-group mb-3">
-					<input type="email" class="form-control" placeholder="Collaborator Email" aria-label="Collaborator Email" aria-describedby="button-addon2" name="Email" required>
-					<input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
-					<div class="input-group-append">
-						<button class="btn btn-outline-secondary" type="submit" id="button-addon2">Add</button>
-					</div>
-				</div>
-			</form>
+            <form asp-action="AddEventUser">
+                <div class="input-group mb-3">
+                    <input type="email" class="form-control" placeholder="Collaborator Email" aria-label="Collaborator Email" aria-describedby="button-addon2" name="Email" required>
+                    <input type="number" hidden="hidden" name="EventId" value="@Model.Event.Id" />
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Add</button>
+                    </div>
+                </div>
+            </form>
 
-			<br />
+            <br />
 
-			<h6>Manage API Key</h6>
+            <h6>Manage API Key</h6>
 
-			<br />
+            <br />
 
             <form asp-action="RenewApiKey">
                 <div class="input-group">
@@ -147,9 +147,9 @@
 
                 </div>
             </form>
-            
-            <br/>
-            
+
+            <br />
+
             <h6>Manage Mails</h6>
 
             <br />
@@ -157,8 +157,9 @@
             <form asp-action="SendTicketsNotSent" asp-route-id="@Model.Event.Id">
                 <button class="btn btn-primary" type="submit" onclick="return confirm('Do you really want to send all mails?')">Send tickets not sent</button>
             </form>
-            
-            
+
+            <br />
+
             <h6>Display statistics</h6>
 
             <br />
