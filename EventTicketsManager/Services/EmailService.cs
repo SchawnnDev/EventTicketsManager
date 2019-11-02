@@ -14,7 +14,12 @@ namespace EventTicketsManager.Services
     {
         public EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor)
         {
-            Options = optionsAccessor.Value;
+	        //    Options = optionsAccessor.Value;
+	        Options = new AuthMessageSenderOptions
+	        {
+		        SendGridUser = "schawnndev",
+		        SendGridKey = "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"
+	        };
         }
 
         public AuthMessageSenderOptions Options { get; } //set only via Secret Manager

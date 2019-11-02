@@ -40,7 +40,7 @@ namespace EventTicketsManager.Services
 
 			await using (var stream = new MemoryStream(pdfBytes))
 			{
-                await msg.AddAttachmentAsync($"{Ticket.FirstName}-{Ticket.LastName}-{Ticket.Event.Name}-Ticket.pdf", stream);
+				await msg.AddAttachmentAsync($"Billet0{Ticket.Id}_{Ticket.FirstName}{Ticket.LastName}.pdf", stream);
             }
 
 			await client.SendEmailAsync(msg);
@@ -48,9 +48,9 @@ namespace EventTicketsManager.Services
 
 		private string GetHtmlContent()
 		{
-			var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Models\Html\MailModel.html");
+			var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), $"Models/Html/MailModel.html");
 			var content = File.ReadAllText(path);
-			var toPay = Ticket.ToPay.ToString("c");
+			var toPay = Ticket.ToPay.ToString("##.##");
 			content = content.Replace("{event.name}", Ticket.Event.Name)
 				.Replace("{event.email}", Ticket.Event.Email)
 				.Replace("{event.postalCode}", Ticket.Event.PostalCode)
@@ -64,11 +64,11 @@ namespace EventTicketsManager.Services
 				.Replace("{ticket.firstName}", Ticket.FirstName)
 				.Replace("{ticket.lastName}", Ticket.LastName)
 				.Replace("{ticket.emailContent}", Ticket.Event.EmailContent)
-				.Replace("{ticket.toPay}", toPay)
+				.Replace("{ticket.toPay}", $"{toPay} €")
 				.Replace("{ticket.name}", "Billet d'entrée")
 				.Replace("{ticket.quantity}","1")
-				.Replace("{ticket.subTotal}", toPay)
-				.Replace("{ticket.totalPrice}", toPay);
+				.Replace("{ticket.subTotal}", $"{toPay} €")
+				.Replace("{ticket.totalPrice}", $"{toPay} €");
 			return content;
 		}
 

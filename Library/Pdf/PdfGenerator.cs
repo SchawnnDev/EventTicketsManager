@@ -42,10 +42,10 @@ namespace Library.Pdf
 			var ticket = QrCode.Ticket;
             if (string.IsNullOrEmpty(HtmlContent))
             {
-                var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Models\Html\PdfModel.html");
+                var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), $"Models/Html/PdfModel.html");
                 HtmlContent = File.ReadAllText(path);
             }
-            var toPay = ticket.ToPay.ToString("c");
+            var toPay = ticket.ToPay.ToString("##.##");
             return HtmlContent.Replace("{event.name}", ticket.Event.Name)
 				.Replace("{event.email}", ticket.Event.Email)
 				.Replace("{event.postalCodeCity}", $"{ticket.Event.PostalCode} {ticket.Event.CityName}")
@@ -59,11 +59,11 @@ namespace Library.Pdf
 				.Replace("{ticket.firstName}", ticket.FirstName)
 				.Replace("{ticket.lastName}", ticket.LastName)
 				.Replace("{event.emailContent}", ticket.Event.EmailContent)
-				.Replace("{ticket.toPay}", toPay)
+				.Replace("{ticket.toPay}", $"{toPay} €")
 				.Replace("{ticket.name}", "Billet d'entrée")
 				.Replace("{ticket.quantity}", "1")
 				.Replace("{ticket.hasToPay}", ticket.HasPaid ? "Vous avez déjà payé ce billet.":"Votre billet n'a pas encore été payé.")
-				.Replace("{ticket.totalPrice}", toPay)
+				.Replace("{ticket.totalPrice}", $"{toPay} €")
 				.Replace("{ticket.qrcode}", GenerateQrCode());
 			
 		}

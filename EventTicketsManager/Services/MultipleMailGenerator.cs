@@ -70,14 +70,14 @@ namespace EventTicketsManager.Services
 
         private string GetHtmlContent()
         {
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Models\Html\MailModel.html");
+            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Models/Html/MailModel.html");
             var content = File.ReadAllText(path);
             return content;
         }
 
         private string ConvertHtmlContent(string htmlContent, SaveableTicket ticket)
         {
-            var toPay = ticket.ToPay.ToString("c");
+            var toPay = ticket.ToPay.ToString("##.##");
             return htmlContent.Replace("{event.name}", _saveableEvent.Name)
                 .Replace("{event.email}", _saveableEvent.Email)
                 .Replace("{event.postalCode}", _saveableEvent.PostalCode)
@@ -91,11 +91,11 @@ namespace EventTicketsManager.Services
                 .Replace("{ticket.firstName}", ticket.FirstName)
                 .Replace("{ticket.lastName}", ticket.LastName)
                 .Replace("{ticket.emailContent}", _saveableEvent.EmailContent)
-                .Replace("{ticket.toPay}", toPay)
+                .Replace("{ticket.toPay}", $"{toPay} €")
                 .Replace("{ticket.name}", "Billet d'entrée")
                 .Replace("{ticket.quantity}", "1")
-                .Replace("{ticket.subTotal}", toPay)
-                .Replace("{ticket.totalPrice}", toPay);
+                .Replace("{ticket.subTotal}", $"{toPay} €")
+                .Replace("{ticket.totalPrice}", $"{toPay} €");
         }
 
     }
