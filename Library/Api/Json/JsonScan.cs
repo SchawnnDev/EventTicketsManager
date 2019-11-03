@@ -24,6 +24,18 @@ namespace Library.Api.Json
         [JsonProperty("toPay")]
         public decimal ToPay { get; set; }
 
+		[JsonProperty("success")]
+		public bool Success { get; set; }
+
+		[JsonProperty("error")]
+		public string Error { get; set; }
+
+		public JsonScan(bool success, string error)
+		{
+			Success = success;
+			Error = error;
+		}
+
         public JsonScan(string firstName, string lastName, bool hasPaid, bool alreadyScanned, decimal toPay)
         {
             FirstName = firstName;
@@ -31,6 +43,7 @@ namespace Library.Api.Json
             HasPaid = hasPaid;
             AlreadyScanned = alreadyScanned;
             ToPay = toPay;
+            Success = true;
         }
 
     }

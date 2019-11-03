@@ -24,7 +24,7 @@ namespace Api.Controllers
 		public JsonScan Get(string id)
 		{
 			if (string.IsNullOrWhiteSpace(id))
-				return null;
+				return new JsonScan(false, "Input is null");
 
 			ApiScan scan;
 
@@ -32,9 +32,9 @@ namespace Api.Controllers
 			{
 				scan = ParseScan(id);
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
-				return null;
+				return new JsonScan(false, e.Message);
 			}
 
 			return CheckScan(scan);
@@ -43,7 +43,7 @@ namespace Api.Controllers
 		private JsonScan CheckScan(ApiScan scan)
 		{
 			if (!LoginController.CheckLogin(scan.Login, _context))
-				return null;
+				return new JsonScan(false, "Login refused");
 
 			try
 			{
@@ -54,7 +54,7 @@ namespace Api.Controllers
 				var qrCode = split[1];
 
 				if (!_context.QrCodes.Any(t => t.Id == qrCodeId))
-					return null;
+					return new JsonScan(false, "Qr Code not existing");
 
 				var saveableQrCode = _context.QrCodes.Single(t => t.Id == qrCodeId);
 
@@ -68,13 +68,14 @@ namespace Api.Controllers
 				var ticketEmail = decodedSplit[1];
 
 				if (!_context.Tickets.Any(t => t.Id == ticketId && t.Email.Equals(ticketEmail)))
-					return null;
+					return new JsonScan(false, "Ticket id does not match with email");
 
 				var ticket = _context.Tickets.Single(t => t.Id == ticketId && t.Email.Equals(ticketEmail));
 
 				var alreadyScanned = _context.TicketScans.Any(t => t.Ticket.Id == ticket.Id);
 
-				var user = _context.Users.Where(t => t.Email.Equals(ticketEmail)).Select(t => t.Id).Single();
+				var user = _context.Users.Any(t => t.Email.Equals(scan.Login.Email)) ?_context.Users.Where(t => t.Email.Equals(scan.Login.Email)).Select(t => t.Id).Single() :scan
+					.Login.Email;
 
 				_context.TicketScans.Add(new SaveableTicketScan(ticket, user, DateTime.Now));
 				_context.SaveChanges();
@@ -84,7 +85,7 @@ namespace Api.Controllers
 			}
 			catch (Exception e)
 			{
-				return null;
+				return new JsonScan(false, e.Message);
 			}
 		}
 
