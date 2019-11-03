@@ -1,4 +1,5 @@
-﻿@model EventDetailsModel
+﻿@using System.Globalization
+@model EventDetailsModel
 
 @{
 	ViewData["Title"] = "Details";
@@ -53,7 +54,7 @@
 					</tr>
 					<tr>
 						<td>Ticket Price</td>
-						<td>@Model.Event.EnterPrice.ToString("F") €</td>
+						<td>@Model.Event.EnterPrice.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))</td>
 					</tr>
 					<tr>
 						<td>Tickets Created</td>

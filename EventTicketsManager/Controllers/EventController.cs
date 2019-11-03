@@ -97,7 +97,9 @@ namespace EventTicketsManager.Controllers
         // GET: Event/Create
         public ActionResult Create()
         {
-            return View(new SaveableEvent {Start = DateTime.Now, End = DateTime.Now.AddDays(1)});
+	        var date = DateTime.Now;
+	        date = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
+	        return View(new SaveableEvent {Start = date, End = date.AddDays(1)});
         }
 
         // POST: Event/Create
@@ -426,7 +428,6 @@ namespace EventTicketsManager.Controllers
                 var multipleMailGenerator = new MultipleMailGenerator(saveableEvent,
                     qrCodes.Select(t => new MultipleMail {QrCode = t, Ticket = t.Ticket}).ToList(), _converter, db,
                     _configuration["SendGridKey"], _userManager.GetUserId(User));
-
 
                 try
                 {

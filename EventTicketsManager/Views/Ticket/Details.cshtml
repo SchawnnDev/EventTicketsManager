@@ -1,4 +1,5 @@
-﻿@using Library.Enums
+﻿@using System.Globalization
+@using Library.Enums
 @model TicketDetailsModel
 
 @{
@@ -62,7 +63,7 @@
 				</tr>
 				<tr>
 					<td>To Pay</td>
-					<td>@(Model.Ticket.ToPay.ToString("F")) €</td>
+					<td>@(Model.Ticket.ToPay.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")))</td>
 				</tr>
 				<tr>
 					<td>Created By</td>

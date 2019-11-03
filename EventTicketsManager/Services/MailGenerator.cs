@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -41,7 +42,8 @@ namespace EventTicketsManager.Services
 			await using (var stream = new MemoryStream(pdfBytes))
 			{
 				await msg.AddAttachmentAsync($"Billet0{Ticket.Id}_{Ticket.FirstName}{Ticket.LastName}.pdf", stream);
-            }
+				await stream.DisposeAsync();
+			}
 
 			await client.SendEmailAsync(msg);
 		}
@@ -50,25 +52,26 @@ namespace EventTicketsManager.Services
 		{
 			var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), $"Models/Html/MailModel.html");
 			var content = File.ReadAllText(path);
-			var toPay = Ticket.ToPay.ToString("##.##");
+			var specificCulture = CultureInfo.CreateSpecificCulture("fr-FR");
+			var toPay = Ticket.ToPay.ToString("C", specificCulture);
 			content = content.Replace("{event.name}", Ticket.Event.Name)
 				.Replace("{event.email}", Ticket.Event.Email)
 				.Replace("{event.postalCode}", Ticket.Event.PostalCode)
 				.Replace("{event.city}", Ticket.Event.CityName)
 				.Replace("{event.address}", string.IsNullOrEmpty(Ticket.Event.AddressNumber) || Ticket.Event.AddressNumber.Equals("0") ? Ticket.Event.AddressName:$"{Ticket.Event.AddressNumber} {Ticket.Event.AddressName}")
 				.Replace("{event.postalCode}", Ticket.Event.PostalCode)
-				.Replace("{event.start}", $"{Ticket.Event.Start:dd/MM/YYYY à HH:mm}".Replace(":","h").Replace("YYYY", Math.Abs(Ticket.Event.Start.Year - 2000).ToString()))
-				.Replace("{event.end}", $"{Ticket.Event.End:dd/MM/YYYY à HH:mm}".Replace(":", "h").Replace("YYYY", Math.Abs(Ticket.Event.End.Year - 2000).ToString()))
+				.Replace("{event.start}", $"{Ticket.Event.Start.ToString("dd/MM/YYYY à HH:mm", specificCulture)}".Replace(":","h").Replace("YYYY", Math.Abs(Ticket.Event.Start.Year - 2000).ToString()))
+				.Replace("{event.end}", $"{Ticket.Event.End.ToString("dd/MM/YYYY à HH:mm", specificCulture)}".Replace(":", "h").Replace("YYYY", Math.Abs(Ticket.Event.End.Year - 2000).ToString()))
 				.Replace("{event.headerUrl}", Ticket.Event.HeaderUrl)
 				.Replace("{ticket.id}", Ticket.Id.ToString())
 				.Replace("{ticket.firstName}", Ticket.FirstName)
 				.Replace("{ticket.lastName}", Ticket.LastName)
 				.Replace("{ticket.emailContent}", Ticket.Event.EmailContent)
-				.Replace("{ticket.toPay}", $"{toPay} €")
+				.Replace("{ticket.toPay}", $"{toPay}")
 				.Replace("{ticket.name}", "Billet d'entrée")
 				.Replace("{ticket.quantity}","1")
-				.Replace("{ticket.subTotal}", $"{toPay} €")
-				.Replace("{ticket.totalPrice}", $"{toPay} €");
+				.Replace("{ticket.subTotal}", $"{toPay}")
+				.Replace("{ticket.totalPrice}", $"{toPay}");
 			return content;
 		}
 

@@ -1,4 +1,5 @@
-﻿@model IEnumerable<Server.SaveableEvent>
+﻿@using System.Globalization
+@model IEnumerable<Server.SaveableEvent>
 
 @{
     ViewData["Title"] = "Index";
@@ -68,7 +69,7 @@
 				@($"{item.PostalCode} {item.CityName}")
 			</td>
 			<td>
-				@Html.DisplayFor(modelItem => item.EnterPrice)€
+				@item.EnterPrice.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))
 			</td>
 			<td>
 				@Html.DisplayFor(modelItem => item.Enabled)

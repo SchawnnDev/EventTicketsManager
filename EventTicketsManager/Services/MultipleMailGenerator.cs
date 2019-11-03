@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -77,25 +78,26 @@ namespace EventTicketsManager.Services
 
         private string ConvertHtmlContent(string htmlContent, SaveableTicket ticket)
         {
-            var toPay = ticket.ToPay.ToString("##.##");
+	        var specificCulture = CultureInfo.CreateSpecificCulture("fr-FR");
+			var toPay = ticket.ToPay.ToString("C", specificCulture);
             return htmlContent.Replace("{event.name}", _saveableEvent.Name)
                 .Replace("{event.email}", _saveableEvent.Email)
                 .Replace("{event.postalCode}", _saveableEvent.PostalCode)
                 .Replace("{event.city}", _saveableEvent.CityName)
                 .Replace("{event.address}", string.IsNullOrEmpty(_saveableEvent.AddressNumber) || _saveableEvent.AddressNumber.Equals("0") ? _saveableEvent.AddressName : $"{_saveableEvent.AddressNumber} {_saveableEvent.AddressName}")
                 .Replace("{event.postalCode}", _saveableEvent.PostalCode)
-                .Replace("{event.start}", $"{_saveableEvent.Start:dd/MM/YYYY à HH:mm}".Replace(":", "h").Replace("YYYY", Math.Abs(_saveableEvent.Start.Year - 2000).ToString()))
-                .Replace("{event.end}", $"{_saveableEvent.End:dd/MM/YYYY à HH:mm}".Replace(":", "h").Replace("YYYY", Math.Abs(_saveableEvent.End.Year - 2000).ToString()))
+                .Replace("{event.start}", $"{_saveableEvent.Start.ToString("dd/MM/YYYY à HH:mm", specificCulture)}".Replace(":", "h").Replace("YYYY", Math.Abs(_saveableEvent.Start.Year - 2000).ToString()))
+                .Replace("{event.end}", $"{_saveableEvent.End.ToString("dd/MM/YYYY à HH:mm", specificCulture)}".Replace(":", "h").Replace("YYYY", Math.Abs(_saveableEvent.End.Year - 2000).ToString()))
                 .Replace("{event.headerUrl}", _saveableEvent.HeaderUrl)
                 .Replace("{ticket.id}", ticket.Id.ToString())
                 .Replace("{ticket.firstName}", ticket.FirstName)
                 .Replace("{ticket.lastName}", ticket.LastName)
                 .Replace("{ticket.emailContent}", _saveableEvent.EmailContent)
-                .Replace("{ticket.toPay}", $"{toPay} €")
+                .Replace("{ticket.toPay}", $"{toPay}")
                 .Replace("{ticket.name}", "Billet d'entrée")
                 .Replace("{ticket.quantity}", "1")
-                .Replace("{ticket.subTotal}", $"{toPay} €")
-                .Replace("{ticket.totalPrice}", $"{toPay} €");
+                .Replace("{ticket.subTotal}", $"{toPay}")
+                .Replace("{ticket.totalPrice}", $"{toPay}");
         }
 
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -45,25 +46,27 @@ namespace Library.Pdf
                 var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), $"Models/Html/PdfModel.html");
                 HtmlContent = File.ReadAllText(path);
             }
-            var toPay = ticket.ToPay.ToString("##.##");
+
+            var specificCulture = CultureInfo.CreateSpecificCulture("fr-FR");
+            var toPay = ticket.ToPay.ToString("C", specificCulture);
             return HtmlContent.Replace("{event.name}", ticket.Event.Name)
 				.Replace("{event.email}", ticket.Event.Email)
 				.Replace("{event.postalCodeCity}", $"{ticket.Event.PostalCode} {ticket.Event.CityName}")
 				.Replace("{event.address}", string.IsNullOrEmpty(ticket.Event.AddressNumber) || ticket.Event.AddressNumber.Equals("0") ? ticket.Event.AddressName : $"{ticket.Event.AddressNumber} {ticket.Event.AddressName}")
 				.Replace("{event.postalCode}", ticket.Event.PostalCode)
-				.Replace("{event.startDate}", $"{ticket.Event.Start:D}")
-				.Replace("{event.startHour}", $"{ticket.Event.Start:HH:mm}".Replace(":","h"))
-				.Replace("{ticket.date}", $"{ticket.CreatedAt:dd/MM/YYYY}".Replace("YYYY", Math.Abs(ticket.CreatedAt.Year - 2000).ToString()))
+				.Replace("{event.startDate}", $"{ticket.Event.Start.ToString("D", specificCulture)}")
+				.Replace("{event.startHour}", $"{ticket.Event.Start.ToString("HH:mm", specificCulture)}".Replace(":","h"))
+				.Replace("{ticket.date}", $"{ticket.CreatedAt.ToString("dd/MM/YYYY",specificCulture)}".Replace("YYYY", Math.Abs(ticket.CreatedAt.Year - 2000).ToString()))
 				.Replace("{event.telephoneNumber}", ticket.Event.TelephoneNumber)
 				.Replace("{ticket.id}", ticket.Id.ToString())
 				.Replace("{ticket.firstName}", ticket.FirstName)
 				.Replace("{ticket.lastName}", ticket.LastName)
 				.Replace("{event.emailContent}", ticket.Event.EmailContent)
-				.Replace("{ticket.toPay}", $"{toPay} €")
+				.Replace("{ticket.toPay}", $"{toPay}")
 				.Replace("{ticket.name}", "Billet d'entrée")
 				.Replace("{ticket.quantity}", "1")
 				.Replace("{ticket.hasToPay}", ticket.HasPaid ? "Vous avez déjà payé ce billet.":"Votre billet n'a pas encore été payé.")
-				.Replace("{ticket.totalPrice}", $"{toPay} €")
+				.Replace("{ticket.totalPrice}", $"{toPay}")
 				.Replace("{ticket.qrcode}", GenerateQrCode());
 			
 		}
