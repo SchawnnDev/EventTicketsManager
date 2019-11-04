@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -30,13 +31,16 @@ namespace Library.Api.Json
 		[JsonProperty("error")]
 		public string Error { get; set; }
 
+		[JsonProperty("lastScanDate")]
+		public string LastScanDate { get; set; }
+
 		public JsonScan(bool success, string error)
 		{
 			Success = success;
 			Error = error;
 		}
 
-        public JsonScan(string firstName, string lastName, bool hasPaid, bool alreadyScanned, decimal toPay)
+        public JsonScan(string firstName, string lastName, bool hasPaid, bool alreadyScanned, decimal toPay, DateTime lastScanDate)
         {
             FirstName = firstName;
             LastName = lastName;
@@ -44,6 +48,8 @@ namespace Library.Api.Json
             AlreadyScanned = alreadyScanned;
             ToPay = toPay;
             Success = true;
+            LastScanDate = alreadyScanned ? lastScanDate.ToString("dd/MM/YYYY à HH:mm", CultureInfo.CreateSpecificCulture("fr-FR"))
+	            .Replace(":", "h").Replace("YYYY", Math.Abs(lastScanDate.Year - 2000).ToString()) : "0";
         }
 
     }

@@ -11,8 +11,10 @@ using Server;
 
 namespace Api.Controllers
 {
-    public class ScanController : Controller
-    {
+	[ApiController]
+	[Route("[controller]")]
+	public class ScanController : ControllerBase
+	{
 	    private readonly ServerContext _context;
 
 	    public ScanController(ServerContext context)
@@ -74,13 +76,19 @@ namespace Api.Controllers
 
 				var alreadyScanned = _context.TicketScans.Any(t => t.Ticket.Id == ticket.Id);
 
+				var lastScan = DateTime.Now;
+				
+				if(alreadyScanned)
+					lastScan = _context.TicketScans.Where(t=>t.Ticket.Id == ticket.Id).OrderByDescending(t => t.Date).Select(t=>t.Date)
+						.FirstOrDefault();
+
 				var user = _context.Users.Any(t => t.Email.Equals(scan.Login.Email)) ?_context.Users.Where(t => t.Email.Equals(scan.Login.Email)).Select(t => t.Id).Single() :scan
 					.Login.Email;
 
 				_context.TicketScans.Add(new SaveableTicketScan(ticket, user, DateTime.Now));
 				_context.SaveChanges();
 
-				return new JsonScan(ticket.FirstName, ticket.LastName, ticket.HasPaid, alreadyScanned, ticket.ToPay);
+				return new JsonScan(ticket.FirstName, ticket.LastName, ticket.HasPaid, alreadyScanned, ticket.ToPay, lastScan);
 
 			}
 			catch (Exception e)
