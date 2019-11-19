@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Server\Server.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library", "Library\Library.csproj", "{2E263C14-ECC8-4F7D-B5D7-39FBF8CFBE84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{72876115-46ED-4FC5-9105-E01386A84351}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{72876115-46ED-4FC5-9105-E01386A84351}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payment", "Payment\Payment.csproj", "{FE77A109-3609-46DE-9C72-83D6A279A30C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{72876115-46ED-4FC5-9105-E01386A84351}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72876115-46ED-4FC5-9105-E01386A84351}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72876115-46ED-4FC5-9105-E01386A84351}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE77A109-3609-46DE-9C72-83D6A279A30C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE77A109-3609-46DE-9C72-83D6A279A30C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE77A109-3609-46DE-9C72-83D6A279A30C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE77A109-3609-46DE-9C72-83D6A279A30C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

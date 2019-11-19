@@ -83,7 +83,7 @@
                     text: 'Tickets by Gender'
                 },
                 tooltip: {
-                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}% ({point.y})</b>'
                 },
                 exporting: {
                     enabled: false
@@ -105,13 +105,13 @@
                         data: [
                             {
                                 name: 'Male',
-                                y: @Model.TicketsGender[Gender.Male]
+                                y: @(Model.TicketsGender.ContainsKey(Gender.Male) ? Model.TicketsGender[Gender.Male] : 0)
                             }, {
                                 name: 'Female',
-                                y:  @Model.TicketsGender[Gender.Female]
+                                y: @(Model.TicketsGender.ContainsKey(Gender.Female) ? Model.TicketsGender[Gender.Female] : 0)
                             }, {
                                 name: 'Diverse',
-                                y:  @Model.TicketsGender[Gender.Diverse]
+                                y: @(Model.TicketsGender.ContainsKey(Gender.Diverse) ? Model.TicketsGender[Gender.Diverse] : 0)
                             }
                         ]
                     }
@@ -131,7 +131,7 @@
                     text: 'Tickets payed'
                 },
                 tooltip: {
-                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}% ({point.y})</b>'
                 },
                 exporting: {
                     enabled: false
@@ -153,10 +153,24 @@
                         data: [
                             {
                                 name: 'Payed',
-                                y: @Model.TicketsPayedCount
+                                y: @Model.TicketsPayedCount,
+
+                                @if (Model.TicketsPayedCount > Math.Abs(Model.TicketsCount - Model.TicketsPayedCount))
+                                {
+                                    @:sliced: true,
+                                    @:selected: true
+                                }
+
                             }, {
                                 name: 'Not Payed',
-                                y:  @Math.Abs(Model.TicketsCount - Model.TicketsPayedCount)
+                                y: @Math.Abs(Model.TicketsCount - Model.TicketsPayedCount),
+
+                                @if (Math.Abs(Model.TicketsCount - Model.TicketsPayedCount) > Model.TicketsPayedCount)
+                                {
+                                    @:sliced: true,
+                                    @:selected: true
+                                }
+
                             }
                         ]
                     }
