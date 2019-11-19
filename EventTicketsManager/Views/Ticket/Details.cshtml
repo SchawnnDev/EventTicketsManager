@@ -3,262 +3,262 @@
 @model TicketDetailsModel
 
 @{
-	ViewData["Title"] = "Details";
-	var scanCount = 1;
-	var mailCount = 1;
+    ViewData["Title"] = "Details";
+    var scanCount = 1;
+    var mailCount = 1;
 }
 
 @section Styles {
-	<style type="text/css">
-		.tableFixHead { /*
+    <style type="text/css">
+        .tableFixHead { /*
 		overflow-y: auto;
 		height: 350px; */
-			position: relative;
-			max-height: 350px;
-			overflow: auto;
-			display: block;
-		}
-	</style>
+            position: relative;
+            max-height: 350px;
+            overflow: auto;
+            display: block;
+        }
+    </style>
 }
 
 <h1>Details</h1>
 
 <div>
-	<h4>Manage a ticket.</h4>
-	<hr/>
+    <h4>Manage a ticket.</h4>
+    <hr/>
 </div>
 
 @if (Model.IsError())
 {
-	<div class="alert alert-danger alert-dismissible fade show" role="alert">
-		@Model.Error
-		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-			<span aria-hidden="true">&times;</span>
-		</button>
-	</div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @Model.Error
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
 }
 
 <div class="container">
 
-	<div class="row">
+    <div class="row">
 
-		<div class="col-md-6">
+        <div class="col-md-6">
 
-			<h6>Informations</h6>
+            <h6>Informations</h6>
 
-			<table class="table table-bordered table-striped mb-0">
+            <table class="table table-bordered table-striped mb-0">
 
-				<tbody>
-				<tr>
-					<td>First Name</td>
-					<td>@Model.Ticket.FirstName</td>
-				</tr>
-				<tr>
-					<td>Last Name</td>
-					<td>@Model.Ticket.LastName</td>
-				</tr>
-				<tr>
-					<td>Email</td>
-					<td>@Model.Ticket.Email</td>
-				</tr>
-				<tr>
-					<td>To Pay</td>
-					<td>@(Model.Ticket.ToPay.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")))</td>
-				</tr>
-				<tr>
-					<td>Created By</td>
-					<td>@(Model.CreatorEmail)</td>
-				</tr>
-				<tr>
-					<td>Ticket Scanned?</td>
-					<td>@(Model.TicketScanned ? $"Yes ({Model.TicketScanNumber})" : "No")</td>
-				</tr>
-				</tbody>
-			</table>
-
-
-		</div>
-
-		<div class="col-md-6">
+                <tbody>
+                <tr>
+                    <td>First Name</td>
+                    <td>@Model.Ticket.FirstName</td>
+                </tr>
+                <tr>
+                    <td>Last Name</td>
+                    <td>@Model.Ticket.LastName</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>@Model.Ticket.Email</td>
+                </tr>
+                <tr>
+                    <td>To Pay</td>
+                    <td>@(Model.Ticket.ToPay.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")))</td>
+                </tr>
+                <tr>
+                    <td>Created By</td>
+                    <td>@(Model.CreatorEmail)</td>
+                </tr>
+                <tr>
+                    <td>Ticket Scanned?</td>
+                    <td>@(Model.TicketScanned ? $"Yes ({Model.TicketScanNumber})" : "No")</td>
+                </tr>
+                </tbody>
+            </table>
 
 
-			<h6>Payment & use informations</h6>
+        </div>
 
-			<div class="alert alert-@(Model.Ticket.HasPaid ? "success" : "danger")" role="alert">
-				@Html.Raw($"This ticket {(Model.Ticket.HasPaid ? "was" : "needs to be")} paid!")
-			</div>
-
-			<div class="row">
-
-				<div class="col-md-6">
+        <div class="col-md-6">
 
 
-					<h6>Qr Code</h6>
+            <h6>Payment & use informations</h6>
 
-					<div id="qrcode"></div>
+            <div class="alert alert-@(Model.Ticket.HasPaid ? "success" : "danger")" role="alert">
+                @Html.Raw($"This ticket {(Model.Ticket.HasPaid ? "was" : "needs to be")} paid!")
+            </div>
 
-					@if (Model.HasQrCode())
-					{
-						<button id="qrcodebtn" class="btn btn-primary" onclick="displayQrCode('@Model.GetQrCodeContent()')">Display Qr Code</button>
-					}
-					else
-					{
-						<form asp-action="GenerateKey">
-							<input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
-							<button id="qrcodebtn" class="btn btn-primary" type="submit" onclick="generateQrCode()">Generate Qr Code</button>
-						</form>
-					}
-				</div>
+            <div class="row">
 
-				<div class="col-md-6">
-					<h6>Mail management</h6>
+                <div class="col-md-6">
 
-					<form asp-action="SendMail">
-						<input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
-						<button id="mailsendbtn" type="submit" class="btn btn-primary" onclick="return sendMail()">@(Model.MailSent ? "Resend" : "Send") Mail</button>
-					</form>
 
-				</div>
-			</div>
-		</div>
-	</div>
-	<br/>
+                    <h6>Qr Code</h6>
 
-	<div class="row">
+                    <div id="qrcode"></div>
 
-		<div class="col-md-6">
+                    @if (Model.HasQrCode())
+                    {
+                        <button id="qrcodebtn" class="btn btn-primary" onclick="displayQrCode('@Model.GetQrCodeContent()')">Display Qr Code</button>
+                    }
+                    else
+                    {
+                        <form asp-action="GenerateKey">
+                            <input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
+                            <button id="qrcodebtn" class="btn btn-primary" type="submit" onclick="generateQrCode()">Generate Qr Code</button>
+                        </form>
+                    }
+                </div>
 
-			<h6>Mails sent history</h6>
+                <div class="col-md-6">
+                    <h6>Mail management</h6>
 
-			<div class="tableFixHead">
-				<table class="table table-bordered table-striped mb-0">
-					<thead>
-					<tr>
-						<th>
-							N°
-						</th>
-						<th>
-							Date
-						</th>
-						<th>
-							User
-						</th>
-					</tr>
-					</thead>
-					<tbody>
+                    <form asp-action="SendMail">
+                        <input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
+                        <button id="mailsendbtn" type="submit" class="btn btn-primary" onclick="return sendMail()">@(Model.MailSent ? "Resend" : "Send") Mail</button>
+                    </form>
 
-					@foreach (var item in Model.Mails)
-					{
-						<tr>
-							<td>
-								@(mailCount++)
-							</td>
-							<td>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+
+    <div class="row">
+
+        <div class="col-md-6">
+
+            <h6>Mails sent history</h6>
+
+            <div class="tableFixHead">
+                <table class="table table-bordered table-striped mb-0">
+                    <thead>
+                    <tr>
+                        <th>
+                            N°
+                        </th>
+                        <th>
+                            Date
+                        </th>
+                        <th>
+                            User
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    @foreach (var item in Model.Mails)
+                    {
+                        <tr>
+                            <td>
+                                @(mailCount++)
+                            </td>
+                            <td>
                                 @(item.Date.ToString("g"))
-							</td>
+                            </td>
 
-							<td>
-								@Html.DisplayFor(modelItem => item.CreatorId)
-							</td>
-						</tr>
-					}
-					</tbody>
-				</table>
-			</div>
-
-
-			<br/>
-
-		</div>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CreatorId)
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
 
 
-		<div class="col-md-6">
+            <br/>
 
-			<h6>Ticket scan history</h6>
+        </div>
 
-			<div class="tableFixHead">
-				<table class="table table-bordered table-striped mb-0">
-					<thead>
-					<tr>
-						<th>
-							N°
-						</th>
-						<th>
-							Date
-						</th>
-						<th>
-							User
-						</th>
-					</tr>
-					</thead>
-					<tbody>
 
-					@foreach (var item in Model.Scans)
-					{
-						<tr>
-							<td>
-								@(scanCount++)
-							</td>
-							<td>
+        <div class="col-md-6">
+
+            <h6>Ticket scan history</h6>
+
+            <div class="tableFixHead">
+                <table class="table table-bordered table-striped mb-0">
+                    <thead>
+                    <tr>
+                        <th>
+                            N°
+                        </th>
+                        <th>
+                            Date
+                        </th>
+                        <th>
+                            User
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    @foreach (var item in Model.Scans)
+                    {
+                        <tr>
+                            <td>
+                                @(scanCount++)
+                            </td>
+                            <td>
                                 @(item.Date.ToString("g"))
-							</td>
+                            </td>
 
-							<td>
-								@Html.DisplayFor(modelItem => item.CreatorId)
-							</td>
-						</tr>
-					}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-	<br/>
-	<div class="row">
-		@Html.ActionLink("Back to list", "List", new {id = Model.Ticket.Event.Id}, new {@class = "btn btn-info btn-lg", @style="margin:5px;"})
-		@Html.ActionLink("Edit", "Edit", new {id = Model.Ticket.Id}, new {@class = "btn btn-primary btn-lg", @style="margin:5px;"})
-		
-		<form asp-action="Delete"  asp-route-id="@Model.Ticket.Id">
-			<button type="submit" class="btn btn-danger btn-lg" style="margin: 5px;" onclick="return confirm('Do you really want to delete this ticket?')">Delete</button>
-		</form>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CreatorId)
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        @Html.ActionLink("Back to list", "List", new {id = Model.Ticket.Event.Id}, new {@class = "btn btn-info btn-lg", @style = "margin:5px;"})
+        @Html.ActionLink("Edit", "Edit", new {id = Model.Ticket.Id}, new {@class = "btn btn-primary btn-lg", @style = "margin:5px;"})
 
-	</div>
+        <form asp-action="Delete" asp-route-id="@Model.Ticket.Id">
+            <button type="submit" class="btn btn-danger btn-lg" style="margin: 5px;" onclick="return confirm('Do you really want to delete this ticket?')">Delete</button>
+        </form>
+
+    </div>
 
 </div>
 
 
 @section Scripts {
-	@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 
-	@if (Model.HasQrCode())
-	{
-		@Html.Raw("<script type=\"text/javascript\" src=\"/lib/qrcode/dist/qrcode.js\"></script>")
-	}
+    @if (Model.HasQrCode())
+    {
+        @Html.Raw("<script type=\"text/javascript\" src=\"/lib/qrcode/dist/qrcode.js\"></script>")
+    }
 
-	<script type="text/javascript">
+    <script type="text/javascript">
 
-		function sendMail() {
-			if (confirm('Do you really want to @(Model.MailSent ? "re":"")send this mail?')) {
-				$("mailsendbtn").attr("disabled", true);
-				return true;
-			} else return false;
-		}
+        function sendMail() {
+            if (confirm('Do you really want to @(Model.MailSent ? "re" : "")send this mail?')) {
+                $("mailsendbtn").attr("disabled", true);
+                return true;
+            } else return false;
+        }
 
 
-		@if (Model.HasQrCode())
-		{
-			@:var qrCodeGenerated = false;
+        @if (Model.HasQrCode())
+        {
+            @:var qrCodeGenerated = false;
 
-			@:function displayQrCode(text) {
-			@:	if (qrCodeGenerated) return;
-			@:  new QRCode(document.getElementById("qrcode"), { text: text, width: 192, height: 192 });
-			@:	$("#qrcodebtn").remove();
-			@:	qrCodeGenerated = true;
-			@:}
-		}
-		else
-		{
-			@:function generateQrCode() { $("qrcodebtn").attr("disabled", true); }
-		}
-	</script>
+            @:function displayQrCode(text) {
+            @:	if (qrCodeGenerated) return;
+            @:  new QRCode(document.getElementById("qrcode"), { text: text, width: 192, height: 192 });
+            @:	$("#qrcodebtn").remove();
+            @:	qrCodeGenerated = true;
+            @:}
+        }
+        else
+        {
+            @:function generateQrCode() { $("qrcodebtn").attr("disabled", true); }
+        }
+    </script>
 }

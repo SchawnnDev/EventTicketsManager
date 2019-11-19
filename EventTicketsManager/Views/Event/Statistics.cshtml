@@ -1,0 +1,166 @@
+﻿@using Library.Enums
+@model EventStatisticsModel
+
+@{
+    ViewData["Title"] = "Statistics";
+}
+
+<h1>Statistics</h1>
+
+<div>
+    <h4>Statistics of @Model.Event.Name.</h4>
+    <hr/>
+</div>
+
+
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-md-6">
+
+            <!--style="min-width: 310px; height: 400px; max-width: 600px;-->
+
+            <div id="ticketsGender" style="margin: 0 auto"></div>
+
+
+        </div>
+
+        <div class="col-md-6">
+
+
+            <div id="ticketsPayed" style="margin: 0 auto"></div>
+
+
+        </div>
+    </div>
+    <br />
+
+    <!--
+    <div class="row">
+
+        <div class="col-md-6">
+
+            <h6>Mails sent history</h6>
+
+            <br/>
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <h6>Ticket scan history</h6>
+
+
+        </div>
+
+    </div>
+    <br /> -->
+
+    <div class="row">
+        @Html.ActionLink("Back to event overview", "Details", new { id = Model.Event.Id }, new { @class = "btn btn-info btn-lg", @style = "margin:5px;" })
+    </div>
+
+</div>
+
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
+    <script type="text/javascript">
+        Highcharts.chart('ticketsGender',
+            {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie',
+                    backgroundColor: null
+                },
+                title: {
+                    text: 'Tickets by Gender'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                exporting: {
+                    enabled: false
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'Tickets',
+                        colorByPoint: true,
+                        data: [
+                            {
+                                name: 'Male',
+                                y: @Model.TicketsGender[Gender.Male]
+                            }, {
+                                name: 'Female',
+                                y:  @Model.TicketsGender[Gender.Female]
+                            }, {
+                                name: 'Diverse',
+                                y:  @Model.TicketsGender[Gender.Diverse]
+                            }
+                        ]
+                    }
+                ]
+            });
+
+        Highcharts.chart('ticketsPayed',
+            {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie',
+                    backgroundColor: null
+                },
+                title: {
+                    text: 'Tickets payed'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                exporting: {
+                    enabled: false
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'Tickets',
+                        colorByPoint: true,
+                        data: [
+                            {
+                                name: 'Payed',
+                                y: @Model.TicketsPayedCount
+                            }, {
+                                name: 'Not Payed',
+                                y:  @Math.Abs(Model.TicketsCount - Model.TicketsPayedCount)
+                            }
+                        ]
+                    }
+                ]
+            });
+    </script>
+}

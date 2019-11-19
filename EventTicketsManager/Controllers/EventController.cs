@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.SqlServer;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Threading.Tasks;
 using DinkToPdf.Contracts;
@@ -145,6 +147,36 @@ namespace EventTicketsManager.Controllers
             }
 
             return model != null ? View(model) : View("Index");
+        }
+
+        public ActionResult Stats(int id)
+        {
+
+            EventStatisticsModel model = null;
+            var sqlMinDate = (DateTime)SqlDateTime.MinValue;
+
+            using (var db = new ServerContext())
+            {
+                if (db.Events.Any(t => t.Id == id)) {
+                    model = new EventStatisticsModel
+                    {
+                        Event = db.Events.Find(id),
+                        TicketsCount = db.Tickets.Count(t => t.Event.Id == id),
+                        TicketsPayedCount = db.Tickets.Count(t => t.HasPaid && t.Event.Id == id),
+                        TicketsGender = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.Gender).Select(t=>new {gender=(Gender)t.Key, count = t.Count()})
+                            .ToDictionary(t =>  t.gender, t => t.count),
+                /*       TicketsByDate = db.Tickets
+                            .Where(t=>t.Event.Id == id)
+                            .GroupBy(x => SqlFunctions.DateAdd("month",
+                                SqlFunctions.DateDiff("month", sqlMinDate, x.CreatedAt), sqlMinDate))
+                            .Select(t=> new {date=t.Key, count=t.Count()})
+                            .ToDictionary(t => t.date, t => t.count) */
+                    };
+                }
+            }
+
+
+            return model != null ? View("Statistics",model) : Details(id, "Error trying to display stats.", true);
         }
 
         // POST: Event/Edit/5
