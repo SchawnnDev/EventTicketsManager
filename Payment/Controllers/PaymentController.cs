@@ -20,7 +20,7 @@ namespace Payment.Controllers
 
         public IActionResult Cancel()
         {
-            return Content("Tu as annulé le paiment.");
+            return Content("Tu as annulé le paiement.");
         }
 
     }
