@@ -356,6 +356,9 @@ namespace Server.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("text");
 
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("ToPay")
                         .HasColumnType("numeric");
 

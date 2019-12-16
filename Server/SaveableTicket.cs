@@ -37,6 +37,8 @@ namespace Server
 
 		public int Gender { get; set; }
 
+        public int PaymentMethod { get; set; }
+
         public SaveableEvent Event { get; set; }
 
         public string CreatorId { get; set; }

@@ -73,6 +73,18 @@
             </div>
         </div>
     </div>
+    
+    <div class="row">
+        <div class="form-group">
+            <label class="control-label">Payment Method</label>
+            <select name="PaymentMethod" class="form-control">
+                @foreach (var paymentMethod in Enum.GetValues(typeof(PaymentMethod)))
+                {
+                    @Html.Raw($"<option value='{(int)paymentMethod}' {((int)paymentMethod == Model.PaymentMethod ? "selected" : "")}>{paymentMethod}</option>")
+                }
+            </select>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-md-12">

@@ -62,6 +62,10 @@
                     <td>@Model.Ticket.Email</td>
                 </tr>
                 <tr>
+                    <td>Payment Method</td>
+                    <td>@(((PaymentMethod)Model.Ticket.PaymentMethod).ToString())</td>
+                </tr>
+                <tr>
                     <td>To Pay</td>
                     <td>@(Model.Ticket.ToPay.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")))</td>
                 </tr>
