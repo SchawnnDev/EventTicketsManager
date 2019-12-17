@@ -64,22 +64,22 @@
 
     <div class="row">
 
-        <div class="col-md-6">
+        <div class="col-md-12">
 
             <!--style="min-width: 310px; height: 400px; max-width: 600px;-->
 
-            <p>Valeur totale des billets: @(Model.TicketsTotalValue.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")))</p>
+            <h4>Valeur totale des billets: @(Model.TicketsTotalValue.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")))</h4>
 
 
         </div>
-
+        <!--
         <div class="col-md-6">
 
 
             <div id="ticketsByDate" style="margin: 0 auto"></div>
 
 
-        </div>
+        </div> -->
     </div>
 
     <!--
@@ -246,9 +246,6 @@
                 plotOptions: {
                     pie: {
                         colors: [
-                            '#50B432',
-                            '#ED561B',
-                            '#DDDF00',
                             '#24CBE5',
                             '#64E572',
                             '#FF9655',
@@ -301,14 +298,14 @@
                 plotOptions: {
                     pie: {
                         colors: [
+                            '#FFF263',
+                            '#6AF9C4',
                             '#50B432',
                             '#ED561B',
                             '#DDDF00',
                             '#24CBE5',
                             '#64E572',
-                            '#FF9655',
-                            '#FFF263',
-                            '#6AF9C4'
+                            '#FF9655'
                         ],
                         allowPointSelect: true,
                         cursor: 'pointer',
@@ -320,7 +317,7 @@
                 },
                 series: [
                     {
-                        name: 'Creators',
+                        name: 'Tickets',
                         colorByPoint: true,
                         data: [
                             @foreach (var creator in Model.TicketsCreator)
@@ -332,41 +329,5 @@
                 ]
             });
     </script>
-    <script type="text/javascript">
 
-        var ticketsDate = JSON.parse("@Model.GenTicketsByDate()");
-
-        Highcharts.chart('ticketsByDate',
-            {
-                chart: {
-                    type: 'area'
-                },
-                title: {
-                    text: 'Tickets by Date'
-                },
-                xAxis: {
-                    type: 'datetime',
-                    tickInterval: 24 * 3600 * 1000 * 2
-                },
-                yAxis: {
-                    allowDecimals: false,
-                    min: 0,
-                    maxPadding: 0,
-                    title: {
-                        text: 'Amount'
-                    }
-                },
-                legend: {
-                    enabled: false,
-                    useHTML: true
-                },
-                series: [
-                    {
-                        name: 'Tickets',
-                        data: ticketsDate
-                    }
-                ]
-            });
-
-    </script>
 }

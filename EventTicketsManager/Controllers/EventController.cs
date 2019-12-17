@@ -169,8 +169,7 @@ namespace EventTicketsManager.Controllers
                         TicketsPaymentMethod = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.PaymentMethod)
                             .Select(t => new {paymentMethod = (PaymentMethod) t.Key, count = t.Count()})
                             .ToDictionary(t => t.paymentMethod, t => t.count),
-                        TicketsByDate = db.Tickets.Where(t => t.Event.Id == id).OrderBy(t => t.CreatedAt)
-                            .Select(t => t.CreatedAt).ToList(),
+                        //TicketsByDate = db.Tickets.Where(t => t.Event.Id == id).OrderBy(t => t.CreatedAt).Select(t => t.CreatedAt).ToList(),
                         TicketsTotalValue = db.Tickets.Where(t => t.Event.Id == id).Sum(t => t.ToPay),
                         TicketsCreator = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.CreatorId).Select(t =>
                                 new
