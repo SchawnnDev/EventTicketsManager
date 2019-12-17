@@ -244,6 +244,9 @@ namespace EventTicketsManager.Controllers
             if (collection.TryGetValue("Gender", out var genderStr))
                 if (int.TryParse(genderStr, out var gender))
                     saveableTicket.Gender = gender;
+            if (collection.TryGetValue("PaymentMethod", out var paymentMethodStr))
+                if (int.TryParse(paymentMethodStr, out var paymentMethod))
+                    saveableTicket.PaymentMethod = paymentMethod;
             if (collection.TryGetValue("ToPay", out var toPayStr))
                 if (decimal.TryParse(toPayStr, out var toPay))
                     saveableTicket.ToPay = toPay;

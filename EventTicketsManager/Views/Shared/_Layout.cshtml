@@ -10,14 +10,18 @@
     <title>@ViewData["Title"] - EventTicketsManager</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    @await Html.PartialAsync("_Favicons")
     @RenderSection("Styles", false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-dark bg-primary navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
             <div class="container">
                 
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Event Tickets Manager</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="/img/logo_transparent.png" width="30" height="30" class="d-inline-block align-top" alt="">
+                    Event Tickets Manager
+                </a>
 
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -30,10 +34,10 @@
                     {
                         <ul class="navbar-nav flex-grow-1">
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Event" asp-action="Index">Events</a>
+                                <a class="nav-link" asp-area="" asp-controller="Event" asp-action="Index">Événements</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Ticket" asp-action="Index">Tickets</a>
+                                <a class="nav-link" asp-area="" asp-controller="Ticket" asp-action="Index">Billets</a>
                             </li>
                         </ul>
                     }

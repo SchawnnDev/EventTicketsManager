@@ -99,9 +99,9 @@ namespace EventTicketsManager.Controllers
         // GET: Event/Create
         public ActionResult Create()
         {
-	        var date = DateTime.Now;
-	        date = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
-	        return View(new SaveableEvent {Start = date, End = date.AddDays(1)});
+            var date = DateTime.Now;
+            date = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
+            return View(new SaveableEvent {Start = date, End = date.AddDays(1)});
         }
 
         // POST: Event/Create
@@ -151,32 +151,47 @@ namespace EventTicketsManager.Controllers
 
         public ActionResult Stats(int id)
         {
-
             EventStatisticsModel model = null;
-            var sqlMinDate = (DateTime)SqlDateTime.MinValue;
+            var sqlMinDate = (DateTime) SqlDateTime.MinValue;
 
             using (var db = new ServerContext())
             {
-                if (db.Events.Any(t => t.Id == id)) {
+                if (db.Events.Any(t => t.Id == id))
+                {
                     model = new EventStatisticsModel
                     {
                         Event = db.Events.Find(id),
                         TicketsCount = db.Tickets.Count(t => t.Event.Id == id),
                         TicketsPayedCount = db.Tickets.Count(t => t.HasPaid && t.Event.Id == id),
-                        TicketsGender = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.Gender).Select(t=>new {gender=(Gender)t.Key, count = t.Count()})
-                            .ToDictionary(t =>  t.gender, t => t.count),
-                /*       TicketsByDate = db.Tickets
-                            .Where(t=>t.Event.Id == id)
-                            .GroupBy(x => SqlFunctions.DateAdd("month",
-                                SqlFunctions.DateDiff("month", sqlMinDate, x.CreatedAt), sqlMinDate))
-                            .Select(t=> new {date=t.Key, count=t.Count()})
-                            .ToDictionary(t => t.date, t => t.count) */
+                        TicketsGender = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.Gender)
+                            .Select(t => new {gender = (Gender) t.Key, count = t.Count()})
+                            .ToDictionary(t => t.gender, t => t.count),
+                        TicketsPaymentMethod = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.PaymentMethod)
+                            .Select(t => new {paymentMethod = (PaymentMethod) t.Key, count = t.Count()})
+                            .ToDictionary(t => t.paymentMethod, t => t.count),
+                        TicketsByDate = db.Tickets.Where(t => t.Event.Id == id).OrderBy(t => t.CreatedAt)
+                            .Select(t => t.CreatedAt).ToList(),
+                        TicketsTotalValue = db.Tickets.Where(t => t.Event.Id == id).Sum(t => t.ToPay),
+                        TicketsCreator = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.CreatorId).Select(t =>
+                                new
+                                {
+                                    email = db.Users.Where(e => e.Id == t.Key).Select(e => e.Email).First(),
+                                    count = t.Count()
+                                })
+                            .ToDictionary(t => t.email, t => t.count)
+
+                        /*       TicketsByDate = db.Tickets
+                                    .Where(t=>t.Event.Id == id)
+                                    .GroupBy(x => SqlFunctions.DateAdd("month",
+                                        SqlFunctions.DateDiff("month", sqlMinDate, x.CreatedAt), sqlMinDate))
+                                    .Select(t=> new {date=t.Key, count=t.Count()})
+                                    .ToDictionary(t => t.date, t => t.count) */
                     };
                 }
             }
 
 
-            return model != null ? View("Statistics",model) : Details(id, "Error trying to display stats.", true);
+            return model != null ? View("Statistics", model) : Details(id, "Error trying to display stats.", true);
         }
 
         // POST: Event/Edit/5

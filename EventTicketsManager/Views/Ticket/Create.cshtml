@@ -2,14 +2,12 @@
 @model TicketCreateModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Créer un billet";
 }
 
-<h1 lang="en">Create</h1>
-<h1 lang="fr">Créer</h1>
+<h1>Créer</h1>
 
-<h4 lang="en">Create an new Ticket.</h4>
-<h4 lang="fr">Créer un nouveau billet.</h4>
+<h4>Créer un nouveau billet.</h4>
 <hr/>
 <form asp-action="Create">
 
@@ -28,12 +26,12 @@
         <div class="col">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Ticket.FirstName" class="control-label">First Name</label>
+                <label asp-for="Ticket.FirstName" class="control-label">Prénom</label>
                 <input asp-for="Ticket.FirstName" name="FirstName" class="form-control" required/>
                 <span asp-validation-for="Ticket.FirstName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Ticket.LastName" class="control-label">Last Name</label>
+                <label asp-for="Ticket.LastName" class="control-label">Nom</label>
                 <input asp-for="Ticket.LastName" name="LastName" class="form-control" required/>
                 <span asp-validation-for="Ticket.LastName" class="text-danger"></span>
             </div>
@@ -47,7 +45,7 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label">Gender</label>
+                <label class="control-label">Genre</label>
                 <select name="Gender" class="form-control">
                     @foreach (var gender in Enum.GetValues(typeof(Gender)))
                     {
@@ -59,7 +57,7 @@
     </div>
     <div class="row">
         <div class="col">
-            <label asp-for="Ticket.ToPay" class="control-label">To Pay</label>
+            <label asp-for="Ticket.ToPay" class="control-label">Doit payer</label>
             <div class="input-group mb-2">
                 <input type="number" asp-for="Ticket.ToPay" name="ToPay" class="form-control" aria-label="Amount (to the nearest euro)" step="0.5" min="0" required>
                 <div class="input-group-append">
@@ -70,17 +68,17 @@
         </div>
         <div class="col">
             <div class="form-group">
-                <label class="control-label">Has Paid</label>
+                <label class="control-label">A payé ?</label>
                 <select name="HasPaid" class="form-control">
                     @if (Model.Ticket.HasPaid)
                     {
-                        @Html.Raw("<option value='1' selected>Yes</option>")
-                        @Html.Raw("<option value='0'>No</option>")
+                        @Html.Raw("<option value='1' selected>Oui</option>")
+                        @Html.Raw("<option value='0'>Non</option>")
                     }
                     else
                     {
-                        @Html.Raw("<option value='0' selected>No</option>")
-                        @Html.Raw("<option value='1' >Yes</option>")
+                        @Html.Raw("<option value='0' selected>Non</option>")
+                        @Html.Raw("<option value='1' >Oui</option>")
                     }
                 </select>
             </div>
@@ -88,14 +86,16 @@
     </div>
     
     <div class="row">
-        <div class="form-group">
-            <label class="control-label">Payment Method</label>
-            <select name="PaymentMethod" class="form-control">
-                @foreach (var paymentMethod in Enum.GetValues(typeof(PaymentMethod)))
-                {
-                    @Html.Raw($"<option value='{(int)paymentMethod}' {((int)paymentMethod == Model.Ticket.PaymentMethod ? "selected" : "")}>{paymentMethod}</option>")
-                }
-            </select>
+        <div class="col">
+            <div class="form-group">
+                <label class="control-label">Moyen de paiement</label>
+                <select name="PaymentMethod" class="form-control">
+                    @foreach (var paymentMethod in Enum.GetValues(typeof(PaymentMethod)))
+                    {
+                        @Html.Raw($"<option value='{(int) paymentMethod}' {((int) paymentMethod == Model.Ticket.PaymentMethod ? "selected" : "")}>{paymentMethod}</option>")
+                    }
+                </select>
+            </div>
         </div>
     </div>
 
@@ -104,7 +104,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary btn-block"/>
+                <input type="submit" value="Créer" class="btn btn-primary btn-block"/>
             </div>
         </div>
     </div>
@@ -112,7 +112,7 @@
 
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Retour à la liste</a>
 </div>
 
 @section Scripts {

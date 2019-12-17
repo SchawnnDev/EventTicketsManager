@@ -2,14 +2,14 @@
 @model TicketListModel
 
 @{
-    ViewData["Title"] = "Tickets List";
+    ViewData["Title"] = "Liste des billets";
     var i = 1;
 }
 
-<h1>Tickets list</h1>
+<h1>Liste des billets</h1>
 
 <p>
-    @Html.ActionLink("Create New", "Create", new { id = Model.Event.Id }, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Créer un billet", "Create", new { id = Model.Event.Id }, new { @class = "btn btn-primary" })
 </p>
 
 @if (Model.IsError())
@@ -29,19 +29,22 @@
             N°
         </th>
         <th>
-            First Name
+            Prénom
         </th>
         <th>
-            Last Name
+            Nom
         </th>
         <th>
             Email
         </th>
         <th>
-			Gender
+			Genre
         </th>
         <th>
-            Has Paid
+            A payé
+        </th>
+        <th>
+            Moyen de paiement
         </th>
         <th></th>
     </tr>
@@ -64,10 +67,13 @@
                 @(((Gender)item.Gender).ToString())
             </td>
             <td>
-                @(item.HasPaid ? "Yes" : "No")
+                @(item.HasPaid ? "Oui" : "Non")
             </td>
             <td>
-                @Html.ActionLink("View", "Details", new { id = item.Id }, new { @class = "btn btn-info" })
+                @(((PaymentMethod)item.PaymentMethod).ToString())
+            </td>
+            <td>
+                @Html.ActionLink("Afficher", "Details", new { id = item.Id }, new { @class = "btn btn-info" })
             </td>
         </tr>
     }

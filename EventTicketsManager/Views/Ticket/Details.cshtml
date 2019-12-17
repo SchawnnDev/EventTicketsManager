@@ -3,7 +3,7 @@
 @model TicketDetailsModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Détails d'un billet";
     var scanCount = 1;
     var mailCount = 1;
 }
@@ -21,10 +21,10 @@
     </style>
 }
 
-<h1>Details</h1>
+<h1>Détails</h1>
 
 <div>
-    <h4>Manage a ticket.</h4>
+    <h4>Gérer un billet.</h4>
     <hr/>
 </div>
 
@@ -50,11 +50,11 @@
 
                 <tbody>
                 <tr>
-                    <td>First Name</td>
+                    <td>Prénom</td>
                     <td>@Model.Ticket.FirstName</td>
                 </tr>
                 <tr>
-                    <td>Last Name</td>
+                    <td>Nom de famille</td>
                     <td>@Model.Ticket.LastName</td>
                 </tr>
                 <tr>
@@ -62,20 +62,20 @@
                     <td>@Model.Ticket.Email</td>
                 </tr>
                 <tr>
-                    <td>Payment Method</td>
+                    <td>Moyen de paiement</td>
                     <td>@(((PaymentMethod)Model.Ticket.PaymentMethod).ToString())</td>
                 </tr>
                 <tr>
-                    <td>To Pay</td>
+                    <td>A payer</td>
                     <td>@(Model.Ticket.ToPay.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")))</td>
                 </tr>
                 <tr>
-                    <td>Created By</td>
+                    <td>Crée par</td>
                     <td>@(Model.CreatorEmail)</td>
                 </tr>
                 <tr>
-                    <td>Ticket Scanned?</td>
-                    <td>@(Model.TicketScanned ? $"Yes ({Model.TicketScanNumber})" : "No")</td>
+                    <td>Billet scanné ?</td>
+                    <td>@(Model.TicketScanned ? $"Oui ({Model.TicketScanNumber})" : "Non")</td>
                 </tr>
                 </tbody>
             </table>
@@ -86,16 +86,15 @@
         <div class="col-md-6">
 
 
-            <h6>Payment & use informations</h6>
+            <h6>Informations paiement</h6>
 
             <div class="alert alert-@(Model.Ticket.HasPaid ? "success" : "danger")" role="alert">
-                @Html.Raw($"This ticket {(Model.Ticket.HasPaid ? "was" : "needs to be")} paid!")
+                @Html.Raw($"Ce ticket {(Model.Ticket.HasPaid ? "est" : "doit être")} payé!")
             </div>
 
             <div class="row">
 
                 <div class="col-md-6">
-
 
                     <h6>Qr Code</h6>
 
@@ -103,23 +102,23 @@
 
                     @if (Model.HasQrCode())
                     {
-                        <button id="qrcodebtn" class="btn btn-primary" onclick="displayQrCode('@Model.GetQrCodeContent()')">Display Qr Code</button>
+                        <button id="qrcodebtn" class="btn btn-primary" onclick="displayQrCode('@Model.GetQrCodeContent()')">Afficher le code QR</button>
                     }
                     else
                     {
                         <form asp-action="GenerateKey">
                             <input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
-                            <button id="qrcodebtn" class="btn btn-primary" type="submit" onclick="generateQrCode()">Generate Qr Code</button>
+                            <button id="qrcodebtn" class="btn btn-primary" type="submit" onclick="generateQrCode()">Générer le code QR</button>
                         </form>
                     }
                 </div>
 
                 <div class="col-md-6">
-                    <h6>Mail management</h6>
+                    <h6>Gérer les mails</h6>
 
                     <form asp-action="SendMail">
                         <input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
-                        <button id="mailsendbtn" type="submit" class="btn btn-primary" onclick="return sendMail()">@(Model.MailSent ? "Resend" : "Send") Mail</button>
+                        <button id="mailsendbtn" type="submit" class="btn btn-primary" onclick="return sendMail()">@(Model.MailSent ? "Renvoyer" : "Envoyer") le mail</button>
                     </form>
 
                 </div>
@@ -132,7 +131,7 @@
 
         <div class="col-md-6">
 
-            <h6>Mails sent history</h6>
+            <h6>Historique des emails envoyés</h6>
 
             <div class="tableFixHead">
                 <table class="table table-bordered table-striped mb-0">
@@ -145,7 +144,7 @@
                             Date
                         </th>
                         <th>
-                            User
+                            Utilisateur
                         </th>
                     </tr>
                     </thead>
@@ -178,7 +177,7 @@
 
         <div class="col-md-6">
 
-            <h6>Ticket scan history</h6>
+            <h6>Historique des scans du billet</h6>
 
             <div class="tableFixHead">
                 <table class="table table-bordered table-striped mb-0">
@@ -191,7 +190,7 @@
                             Date
                         </th>
                         <th>
-                            User
+                            Utilisateur
                         </th>
                     </tr>
                     </thead>
@@ -219,11 +218,11 @@
     </div>
     <br/>
     <div class="row">
-        @Html.ActionLink("Back to list", "List", new {id = Model.Ticket.Event.Id}, new {@class = "btn btn-info btn-lg", @style = "margin:5px;"})
-        @Html.ActionLink("Edit", "Edit", new {id = Model.Ticket.Id}, new {@class = "btn btn-primary btn-lg", @style = "margin:5px;"})
+        @Html.ActionLink("Retour à la liste", "List", new {id = Model.Ticket.Event.Id}, new {@class = "btn btn-info btn-lg", @style = "margin:5px;"})
+        @Html.ActionLink("Editer", "Edit", new {id = Model.Ticket.Id}, new {@class = "btn btn-primary btn-lg", @style = "margin:5px;"})
 
         <form asp-action="Delete" asp-route-id="@Model.Ticket.Id">
-            <button type="submit" class="btn btn-danger btn-lg" style="margin: 5px;" onclick="return confirm('Do you really want to delete this ticket?')">Delete</button>
+            <button type="submit" class="btn btn-danger btn-lg" style="margin: 5px;" onclick="return confirm('Es-tu sûr de vouloir supprimer ce billet ?')">Supprimer</button>
         </form>
 
     </div>
@@ -242,7 +241,7 @@
     <script type="text/javascript">
 
         function sendMail() {
-            if (confirm('Do you really want to @(Model.MailSent ? "re" : "")send this mail?')) {
+            if (confirm('Es-tu sûr de vouloir @(Model.MailSent ? "r" : "")envoyer ce mail ?')) {
                 $("mailsendbtn").attr("disabled", true);
                 return true;
             } else return false;

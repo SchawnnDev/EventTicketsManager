@@ -3,19 +3,19 @@
 @inject UserManager<IdentityUser> UserManager
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Page d'accueil";
 }
 
     <div class="text-center">
-        <h1 class="display-4">Welcome</h1>
+        <h1 class="display-4">Bienvenue</h1>
 
         @if (SignInManager.IsSignedIn(User))
         {
-            <p>Manage your events & tickets using the navigation bar buttons "Events" and "Tickets".</p>
+            <p>Gérez vos événements et vos billets en utilisant les bouttons de la barre de navigation "Événements" et "Billets".</p>
         }
         else
         {
-            <p>Please create your account.</p>
+            <p>Please log in or create your account.</p>
         }
 
     </div>

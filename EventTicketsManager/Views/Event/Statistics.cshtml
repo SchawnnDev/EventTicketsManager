@@ -1,4 +1,6 @@
-﻿@using Library.Enums
+﻿@using System.Globalization
+@using Library.Enums
+@using Library.Utils
 @model EventStatisticsModel
 
 @{
@@ -34,7 +36,51 @@
 
         </div>
     </div>
-    <br />
+
+    <br/>
+
+    <div class="row">
+
+        <div class="col-md-6">
+
+            <!--style="min-width: 310px; height: 400px; max-width: 600px;-->
+
+            <div id="ticketsPaymentMethod" style="margin: 0 auto"></div>
+
+
+        </div>
+
+        <div class="col-md-6">
+
+
+            <div id="ticketsCreator" style="margin: 0 auto"></div>
+
+
+        </div>
+    </div>
+
+
+    <br/>
+
+    <div class="row">
+
+        <div class="col-md-6">
+
+            <!--style="min-width: 310px; height: 400px; max-width: 600px;-->
+
+            <p>Valeur totale des billets: @(Model.TicketsTotalValue.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")))</p>
+
+
+        </div>
+
+        <div class="col-md-6">
+
+
+            <div id="ticketsByDate" style="margin: 0 auto"></div>
+
+
+        </div>
+    </div>
 
     <!--
     <div class="row">
@@ -59,7 +105,7 @@
     <br /> -->
 
     <div class="row">
-        @Html.ActionLink("Back to event overview", "Details", new { id = Model.Event.Id }, new { @class = "btn btn-info btn-lg", @style = "margin:5px;" })
+        @Html.ActionLink("Back to event overview", "Details", new {id = Model.Event.Id}, new {@class = "btn btn-info btn-lg", @style = "margin:5px;"})
     </div>
 
 </div>
@@ -176,5 +222,151 @@
                     }
                 ]
             });
+    </script>
+
+    <script type="text/javascript">
+        Highcharts.chart('ticketsPaymentMethod',
+            {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie',
+                    backgroundColor: null
+                },
+                title: {
+                    text: 'Tickets by Payment Method'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}% ({point.y})</b>'
+                },
+                exporting: {
+                    enabled: false
+                },
+                plotOptions: {
+                    pie: {
+                        colors: [
+                            '#50B432',
+                            '#ED561B',
+                            '#DDDF00',
+                            '#24CBE5',
+                            '#64E572',
+                            '#FF9655',
+                            '#FFF263',
+                            '#6AF9C4'
+                        ],
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'Tickets',
+                        colorByPoint: true,
+                        data: [
+                            {
+                                name: 'Paypal',
+                                y: @(Model.TicketsPaymentMethod.ContainsKey(PaymentMethod.Paypal) ? Model.TicketsPaymentMethod[PaymentMethod.Paypal] : 0)
+                            }, {
+                                name: 'Cash',
+                                y: @(Model.TicketsPaymentMethod.ContainsKey(PaymentMethod.Cash) ? Model.TicketsPaymentMethod[PaymentMethod.Cash] : 0)
+                            }
+                        ]
+                    }
+                ]
+            });
+
+        Highcharts.chart('ticketsCreator',
+            {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie',
+                    backgroundColor: null
+                },
+                title: {
+                    text: 'Tickets creators'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}% ({point.y})</b>'
+                },
+                exporting: {
+                    enabled: false
+                },
+                plotOptions: {
+                    pie: {
+                        colors: [
+                            '#50B432',
+                            '#ED561B',
+                            '#DDDF00',
+                            '#24CBE5',
+                            '#64E572',
+                            '#FF9655',
+                            '#FFF263',
+                            '#6AF9C4'
+                        ],
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'Creators',
+                        colorByPoint: true,
+                        data: [
+                            @foreach (var creator in Model.TicketsCreator)
+                            {
+                                @:{ name: '@creator.Key', y: @creator.Value },
+                            }
+                        ]
+                    }
+                ]
+            });
+    </script>
+    <script type="text/javascript">
+
+        var ticketsDate = JSON.parse("@Model.GenTicketsByDate()");
+
+        Highcharts.chart('ticketsByDate',
+            {
+                chart: {
+                    type: 'area'
+                },
+                title: {
+                    text: 'Tickets by Date'
+                },
+                xAxis: {
+                    type: 'datetime',
+                    tickInterval: 24 * 3600 * 1000 * 2
+                },
+                yAxis: {
+                    allowDecimals: false,
+                    min: 0,
+                    maxPadding: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                legend: {
+                    enabled: false,
+                    useHTML: true
+                },
+                series: [
+                    {
+                        name: 'Tickets',
+                        data: ticketsDate
+                    }
+                ]
+            });
+
     </script>
 }
