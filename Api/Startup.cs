@@ -32,7 +32,8 @@ namespace Api
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddDbContext<ServerContext>(options => options.UseNpgsql(Configuration.GetConnectionString("ServerConnection")));
-			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ServerContext>();
+            services.AddRouting(options => options.LowercaseUrls = true);
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ServerContext>();
 			services.AddControllers();
 		}
 
