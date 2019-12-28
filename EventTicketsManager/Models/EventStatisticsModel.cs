@@ -20,7 +20,7 @@ namespace EventTicketsManager.Models
         public Dictionary<Gender, int> TicketsGender { get; set; }
         public Dictionary<string, int> TicketsCreator { get; set; }
         public Dictionary<PaymentMethod, int> TicketsPaymentMethod { get; set; }
-
+        public decimal TicketsPayedTotalValue { get; set; }
 
         public string GenTicketsByDate()
         {

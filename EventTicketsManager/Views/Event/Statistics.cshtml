@@ -68,8 +68,11 @@
 
             <!--style="min-width: 310px; height: 400px; max-width: 600px;-->
 
-            <h4>Valeur totale des billets: @(Model.TicketsTotalValue.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")))</h4>
+            <h4>Valeur totale des billets payés: @(Model.TicketsTotalValue.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")))</h4>
 
+            <br />
+
+            <h4>Valeur totale des billets: @(Model.TicketsPayedTotalValue.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")))</h4>
 
         </div>
         <!--

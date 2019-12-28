@@ -2,29 +2,29 @@
 @model EventDetailsModel
 
 @{
-	ViewData["Title"] = "Details";
-	var i = 1;
+    ViewData["Title"] = "Details";
+    var i = 1;
 }
 
 @section Styles {
-	<style type="text/css">
+    <style type="text/css">
 
-		.tableFixHead { /*
+        .tableFixHead { /*
 		overflow-y: auto;
 		height: 350px; */
-			position: relative;
-			max-height: 350px;
-			overflow: auto;
-			display: block;
-		}
-	</style>
+            position: relative;
+            max-height: 350px;
+            overflow: auto;
+            display: block;
+        }
+    </style>
 }
 
 <h1>Details of @Model.Event.Name</h1>
 
 <div>
     <h4>Manage your event and collaborators.</h4>
-    <hr />
+    <hr/>
 </div>
 
 @if (Model.HasMessage())
@@ -39,41 +39,42 @@
 
 <div class="container">
 
-	<div class="row">
+    <div class="row">
 
-		<div class="col-md-6">
+        <div class="col-md-6">
 
-			<h6>Informations</h6>
+            <h6>Informations</h6>
 
-			<table class="table table-bordered table-striped mb-0">
+            <table class="table table-bordered table-striped mb-0">
 
-				<tbody>
-					<tr>
-						<td>Header</td>
-						<td><img src="@Model.Event.HeaderUrl" class="img-fluid rounded" style="height: 75%;" alt="" /></td>
-					</tr>
-					<tr>
-						<td>Ticket Price</td>
-						<td>@Model.Event.EnterPrice.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))</td>
-					</tr>
-					<tr>
-						<td>Tickets Created</td>
-						<td>@Model.TicketsCreated (@Model.TicketsGenreCountString())</td>
-					</tr>
-					<tr>
-						<td>Tickets Mail Sent</td>
-						<td>@Model.TicketsMailSent</td>
-					</tr>
-					<tr>
-						<td>Tickets Scanned</td>
-						<td>@Model.TicketsScanned</td>
-					</tr>
-				</tbody>
-			</table>
+                <tbody>
+                <tr>
+                    <td>Header</td>
+                    <td>
+                        <img src="@Model.Event.HeaderUrl" class="img-fluid rounded" style="height: 75%;" alt=""/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Ticket Price</td>
+                    <td>@Model.Event.EnterPrice.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))</td>
+                </tr>
+                <tr>
+                    <td>Tickets Created</td>
+                    <td>@Model.TicketsCreated (@Model.TicketsGenreCountString())</td>
+                </tr>
+                <tr>
+                    <td>Tickets Mail Sent</td>
+                    <td>@Model.TicketsMailSent</td>
+                </tr>
+                <tr>
+                    <td>Tickets Scanned</td>
+                    <td>@Model.TicketsScanned</td>
+                </tr>
+                </tbody>
+            </table>
 
 
-
-		</div>
+        </div>
 
         <div class="col-md-6">
 
@@ -167,22 +168,68 @@
 
             <a class="btn btn-primary" asp-action="Stats" asp-route-id="@Model.Event.Id">Display statistics</a>
 
+            <br />
+
+            <h6>Exporter billets vers CSV</h6>
+
+            <br />
+            <br />
+
+            <form asp-action="ExportTicketsCsv" asp-route-id="@Model.Event.Id">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="firstName" name="firstName">
+                    <label class="form-check-label" for="firstName">Prénom</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="name" name="name">
+                    <label class="form-check-label" for="name">Nom</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="email" name="email">
+                    <label class="form-check-label" for="email">Email</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="hasPaid" name="hasPaid">
+                    <label class="form-check-label" for="hasPaid">A payé</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="toPay" name="toPay">
+                    <label class="form-check-label" for="toPay">Doit payer</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="paymentMethod" name="paymentMethod">
+                    <label class="form-check-label" for="paymentMethod">Moyen de paiement</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="scanned" name="scanned">
+                    <label class="form-check-label" for="scanned">Scanné</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="updatedAt" name="updatedAt">
+                    <label class="form-check-label" for="updatedAt">Mis à jour le</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="createdAt" name="createdAt">
+                    <label class="form-check-label" for="createdAt">Crée le</label>
+                </div>
+                <button class="btn btn-outline-secondary" type="submit">Export</button>
+            </form>
         </div>
 
-	</div>
+    </div>
 
 </div>
 
-<br />
+<br/>
 
 <div>
-	<a class="btn btn-info btn-lg" asp-action="Index">Back to List</a>
-	@Html.ActionLink("Edit", "Edit", new { id = Model.Event.Id }, new { @class = "btn btn-primary btn-lg" })
-	@Html.ActionLink("Delete", "Delete", new { id = Model.Event.Id }, new { @class = "btn btn-danger btn-lg" })
+    <a class="btn btn-info btn-lg" asp-action="Index">Back to List</a>
+    @Html.ActionLink("Edit", "Edit", new {id = Model.Event.Id}, new {@class = "btn btn-primary btn-lg"})
+    @Html.ActionLink("Delete", "Delete", new {id = Model.Event.Id}, new {@class = "btn btn-danger btn-lg"})
 </div>
 
 @section Scripts {
-	@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 
 
     <script type="text/javascript">
@@ -204,6 +251,7 @@
 
             document.body.removeChild(textArea);
         }
+
         function copyTextToClipboard(text) {
             if (!navigator.clipboard) {
                 fallbackCopyTextToClipboard(text);
@@ -219,9 +267,10 @@
             );
         }
 
-        document.getElementById("copyApiKey").addEventListener("click", function(event) {
-            copyTextToClipboard("@Html.Raw(Model.Event.ApiKey)");
-        });
+        document.getElementById("copyApiKey").addEventListener("click",
+            function(event) {
+                copyTextToClipboard("@Html.Raw(Model.Event.ApiKey)");
+            });
 
 
     </script>

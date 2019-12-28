@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.SqlServer;
 using System.Data.SqlTypes;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DinkToPdf.Contracts;
 using EventTicketsManager.Models;
@@ -170,7 +173,8 @@ namespace EventTicketsManager.Controllers
                             .Select(t => new {paymentMethod = (PaymentMethod) t.Key, count = t.Count()})
                             .ToDictionary(t => t.paymentMethod, t => t.count),
                         //TicketsByDate = db.Tickets.Where(t => t.Event.Id == id).OrderBy(t => t.CreatedAt).Select(t => t.CreatedAt).ToList(),
-                        TicketsTotalValue = db.Tickets.Where(t => t.Event.Id == id && t.HasPaid).Sum(t => t.ToPay),
+                        TicketsTotalValue = db.Tickets.Where(t => t.Event.Id == id).Sum(t => t.ToPay),
+                        TicketsPayedTotalValue = db.Tickets.Where(t => t.Event.Id == id && t.HasPaid).Sum(t => t.ToPay),
                         TicketsCreator = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.CreatorId).Select(t =>
                                 new
                                 {
@@ -266,6 +270,82 @@ namespace EventTicketsManager.Controllers
             return View(db.Events.Single(t => t.Id == id)); */
 
             return Details(id);
+        }
+
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        // GET: Event/Delete/5
+        public ActionResult ExportTicketsCsv(int id, IFormCollection collection)
+        {
+
+            var list = new List<string>();
+            var header = new List<string>();
+
+            if (collection.ContainsKey("firstName"))
+                header.Add("Prénom");
+            if (collection.ContainsKey("name"))
+                header.Add("Nom");
+            if (collection.ContainsKey("email"))
+                header.Add("Email");
+            if (collection.ContainsKey("hasPaid"))
+                header.Add("Payé");
+            if (collection.ContainsKey("toPay"))
+                header.Add("Montant");
+            if (collection.ContainsKey("paymentMethod"))
+                header.Add("MoyenPaiement");
+            if (collection.ContainsKey("scanned"))
+                header.Add("Scanné");
+            if (collection.ContainsKey("updatedAt"))
+                header.Add("DateMaj");
+            if (collection.ContainsKey("createdAt"))
+                header.Add("DateCreation");
+
+            using (var db = new ServerContext())
+            {
+                foreach (var ticket in db.Tickets.Where(t=>t.Event.Id == id).ToList())
+                {//firstName,name,email,hasPaid,toPay,paymentMethod,scanned,updatedAt,createdAt
+
+                    var ticketVal = new List<string>();
+
+                    if (collection.ContainsKey("firstName"))
+                        ticketVal.Add(ticket.FirstName);
+                    if(collection.ContainsKey("name"))
+                        ticketVal.Add(ticket.LastName);
+                    if (collection.ContainsKey("email"))
+                        ticketVal.Add(ticket.Email);
+                    if (collection.ContainsKey("hasPaid"))
+                        ticketVal.Add(ticket.HasPaid ? "oui" : "non");
+                    if (collection.ContainsKey("toPay"))
+                        ticketVal.Add(ticket.ToPay.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")).Replace(",","."));
+                    if (collection.ContainsKey("paymentMethod"))
+                        ticketVal.Add(((PaymentMethod)ticket.PaymentMethod).ToString().ToLower());
+                    if (collection.ContainsKey("scanned"))
+                        ticketVal.Add(db.TicketScans.Any(t=>t.Ticket.Id == ticket.Id) ? "oui" : "non");
+                    if (collection.ContainsKey("updatedAt"))
+                        ticketVal.Add(ticket.UpdatedAt.ToString("g", CultureInfo.CreateSpecificCulture("fr-FR")));
+                    if (collection.ContainsKey("createdAt"))
+                        ticketVal.Add(ticket.CreatedAt.ToString("g", CultureInfo.CreateSpecificCulture("fr-FR")));
+
+                    list.Add(string.Join(',',ticketVal));
+                }
+            }
+
+            // Response...
+            System.Net.Mime.ContentDisposition cd = new System.Net.Mime.ContentDisposition
+            {
+                FileName = "exportedTickets.csv",
+                Inline = false  // false = prompt the user for downloading;  true = browser to try to show the file inline
+            };
+            Response.Headers.Add("Content-Disposition", cd.ToString());
+            Response.Headers.Add("X-Content-Type-Options", "nosniff");
+
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine(string.Join(',', header));
+            foreach (var line in list)
+                stringBuilder.AppendLine(line);
+
+            return File(Encoding.Unicode.GetBytes(stringBuilder.ToString()), "text/csv");
+
         }
 
         // POST: Event/Delete/5
