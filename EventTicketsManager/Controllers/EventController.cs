@@ -295,6 +295,8 @@ namespace EventTicketsManager.Controllers
                 header.Add("MoyenPaiement");
             if (collection.ContainsKey("scanned"))
                 header.Add("Scanné");
+            if (collection.ContainsKey("scannedAT"))
+                header.Add("Scanné le");
             if (collection.ContainsKey("updatedAt"))
                 header.Add("DateMaj");
             if (collection.ContainsKey("createdAt"))
@@ -321,6 +323,8 @@ namespace EventTicketsManager.Controllers
                         ticketVal.Add(((PaymentMethod)ticket.PaymentMethod).ToString().ToLower());
                     if (collection.ContainsKey("scanned"))
                         ticketVal.Add(db.TicketScans.Any(t=>t.Ticket.Id == ticket.Id) ? "oui" : "non");
+                    if (collection.ContainsKey("scannedAt"))
+                        ticketVal.Add(db.TicketScans.Any(t => t.Ticket.Id == ticket.Id) ? db.TicketScans.First(t=>t.Ticket.Id == ticket.Id).Date.ToString("g", CultureInfo.CreateSpecificCulture("fr-FR")) : "non scanné");
                     if (collection.ContainsKey("updatedAt"))
                         ticketVal.Add(ticket.UpdatedAt.ToString("g", CultureInfo.CreateSpecificCulture("fr-FR")));
                     if (collection.ContainsKey("createdAt"))
