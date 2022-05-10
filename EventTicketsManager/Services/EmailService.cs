@@ -17,8 +17,8 @@ namespace EventTicketsManager.Services
 	        //    Options = optionsAccessor.Value;
 	        Options = new AuthMessageSenderOptions
 	        {
-		        SendGridUser = "schawnndev",
-		        SendGridKey = "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"
+		        SendGridUser = "",
+		        SendGridKey = ""
 	        };
         }
 
