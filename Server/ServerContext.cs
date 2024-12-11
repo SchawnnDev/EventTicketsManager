@@ -9,6 +9,11 @@ namespace Server
 	public class ServerContext : IdentityDbContext<IdentityUser>
     {
 
+	    static ServerContext()
+	    {
+		    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+	    }
+
         private static DbContextOptions Options { get; set; }
 
         public ServerContext() : base(Options) { }

@@ -30,7 +30,7 @@ namespace Library.Api
 			{
 				IV = myAes?.IV,
 				Key = myAes?.Key,
-				CreatedAt = DateTime.Now,
+				CreatedAt = DateTime.UtcNow,
 				Ticket = Ticket
 			};
 

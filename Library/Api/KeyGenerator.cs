@@ -20,7 +20,7 @@ namespace Library.Api
 
         public string GenerateNewKey()
         {
-            //AESEncryption.EncryptStringToBase64String(DateTime.Now.ToString("g"), key).Base64Encode();
+            //AESEncryption.EncryptStringToBase64String(DateTime.UtcNow.ToString("g"), key).Base64Encode();
             // Convert.FromBase64String(Base64Key);
             var random = new Random();
             var key = new byte[random.Next(5,10)];

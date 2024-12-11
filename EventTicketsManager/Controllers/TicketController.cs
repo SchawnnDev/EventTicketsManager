@@ -164,7 +164,7 @@ namespace EventTicketsManager.Controllers
 
                     saveableTicket.Event = saveableEvent;
                     saveableTicket.CreatorId = saveableTicket.UpdaterId = user;
-                    saveableTicket.CreatedAt = saveableTicket.UpdatedAt = DateTime.Now;
+                    saveableTicket.CreatedAt = saveableTicket.UpdatedAt = DateTime.UtcNow;
 
                     db.Tickets.Add(saveableTicket);
 
@@ -218,7 +218,7 @@ namespace EventTicketsManager.Controllers
                     FillTicket(saveableTicket, collection);
 
                     saveableTicket.UpdaterId = _userManager.GetUserId(User);
-                    saveableTicket.UpdatedAt = DateTime.Now;
+                    saveableTicket.UpdatedAt = DateTime.UtcNow;
 
                     db.Events.Attach(saveableTicket.Event);
 
@@ -229,7 +229,7 @@ namespace EventTicketsManager.Controllers
 
                 return List(eventId );
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return Index();
             }
@@ -267,7 +267,7 @@ namespace EventTicketsManager.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
         {
-	        var eventId = 0;
+	        // var eventId = 0;
 	      
 	        try
 	        {
@@ -349,7 +349,7 @@ namespace EventTicketsManager.Controllers
 
 		        return Details(id);
 	        }
-	        catch (Exception e)
+	        catch (Exception)
 	        {
 		        return Details(id);
 	        }
@@ -437,14 +437,14 @@ namespace EventTicketsManager.Controllers
 
 				try
 				{
-					mail.SendMailAsync(_configuration["SendGridKey"], ticketQrCode).Wait(TimeSpan.FromSeconds(5));
+					mail.SendMailAsync(Environment.GetEnvironmentVariable("SENDGRID_API_KEY"), ticketQrCode).Wait(TimeSpan.FromSeconds(5));
 				}
 				catch (OperationCanceledException ex)
 				{
 					return Details(id, ex.Message);
 				}
 
-				db.TicketUserMails.Add(new SaveableTicketUserMail(saveableTicket, _userManager.GetUserId(User), DateTime.Now));
+				db.TicketUserMails.Add(new SaveableTicketUserMail(saveableTicket, _userManager.GetUserId(User), DateTime.UtcNow));
 
 				Logger.SendLog($"Sent mail for ticket n°{saveableTicket.Id}", _userManager.GetUserId(User), db);
 

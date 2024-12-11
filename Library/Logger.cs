@@ -10,7 +10,7 @@ namespace Library
 
 		public static void SendLog(string message, string user, ServerContext context)
 		{
-			context.Logs.Add(new SaveableLog {Date = DateTime.Now, Message = message, UserId = user});
+			context.Logs.Add(new SaveableLog {Date = DateTime.UtcNow, Message = message, UserId = user});
 		}
 
 	}

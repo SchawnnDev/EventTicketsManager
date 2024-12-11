@@ -36,7 +36,6 @@ namespace EventTicketsManager.Services
 			var msg = MailHelper.CreateSingleEmail(from, to, subject, "", GetHtmlContent());
 
 			var pdf = new PdfGenerator(qrCode, _converter);
-
 			var pdfBytes = pdf.Generate();
 
 			await using (var stream = new MemoryStream(pdfBytes))

@@ -102,7 +102,7 @@ namespace EventTicketsManager.Controllers
         // GET: Event/Create
         public ActionResult Create()
         {
-            var date = DateTime.Now;
+            var date = DateTime.UtcNow;
             date = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
             return View(new SaveableEvent {Start = date, End = date.AddDays(1)});
         }
@@ -119,8 +119,8 @@ namespace EventTicketsManager.Controllers
                 FillEvent(saveableEvent, collection);
 
                 saveableEvent.CreatorId = _userManager.GetUserId(User);
-                saveableEvent.CreatedAt = DateTime.Now;
-                saveableEvent.UpdatedAt = DateTime.Now;
+                saveableEvent.CreatedAt = DateTime.UtcNow;
+                saveableEvent.UpdatedAt = DateTime.UtcNow;
                 saveableEvent.ApiKey = new KeyGenerator(saveableEvent).GenerateNewKey();
 
                 using (var db = new ServerContext())
@@ -217,14 +217,14 @@ namespace EventTicketsManager.Controllers
 
                     FillEvent(saveableEvent, collection);
 
-                    saveableEvent.UpdatedAt = DateTime.Now;
+                    saveableEvent.UpdatedAt = DateTime.UtcNow;
 
                     db.SaveChanges();
                 }
 
                 return RedirectToAction(nameof(Index));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return View("Index");
             }
@@ -340,8 +340,8 @@ namespace EventTicketsManager.Controllers
                 FileName = "exportedTickets.csv",
                 Inline = false  // false = prompt the user for downloading;  true = browser to try to show the file inline
             };
-            Response.Headers.Add("Content-Disposition", cd.ToString());
-            Response.Headers.Add("X-Content-Type-Options", "nosniff");
+            Response.Headers.Append("Content-Disposition", cd.ToString());
+            Response.Headers.Append("X-Content-Type-Options", "nosniff");
 
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine(string.Join(',', header));
@@ -410,7 +410,7 @@ namespace EventTicketsManager.Controllers
                 db.Remove(user);
                 db.SaveChanges();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return Details(eventId);
             }
@@ -472,7 +472,7 @@ namespace EventTicketsManager.Controllers
 
                 return Details(id);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return Details(id);
             }
@@ -508,7 +508,7 @@ namespace EventTicketsManager.Controllers
 
                 return Details(eventId);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return Details(eventId);
             }

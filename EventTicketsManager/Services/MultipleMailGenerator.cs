@@ -62,7 +62,7 @@ namespace EventTicketsManager.Services
 
                 await _client.SendEmailAsync(msg);
 
-                _serverContext.TicketUserMails.Add(new SaveableTicketUserMail(multipleMail.Ticket, _userId, DateTime.Now));
+                _serverContext.TicketUserMails.Add(new SaveableTicketUserMail(multipleMail.Ticket, _userId, DateTime.UtcNow));
 
                 Logger.SendLog($"Sent mail for ticket n°0{multipleMail.Ticket.Id}", _userId, _serverContext);
             }
