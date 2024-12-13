@@ -94,7 +94,7 @@
 
             <div class="row">
 
-                <div class="col-md-6">
+                <div class="col-md-4">
 
                     <h6>Qr Code</h6>
 
@@ -113,7 +113,7 @@
                     }
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <h6>Gérer les mails</h6>
 
                     <form asp-action="SendMail">
@@ -121,6 +121,16 @@
                         <button id="mailsendbtn" type="submit" class="btn btn-primary" onclick="return sendMail()">@(Model.MailSent ? "Renvoyer" : "Envoyer") le mail</button>
                     </form>
 
+                </div>
+
+                <div class="col-md-4">
+
+                    <h6>Générer un PDF</h6>
+
+                    <form asp-action="GeneratePdf">
+                        <input type="number" name="TicketId" hidden="hidden" value="@Model.Ticket.Id"/>
+                        <button type="submit" class="btn btn-primary">Générer le PDF</button>
+                    </form>
                 </div>
             </div>
         </div>

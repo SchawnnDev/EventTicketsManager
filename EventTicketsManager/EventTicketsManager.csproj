@@ -3,6 +3,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <UserSecretsId>b166d44d-c339-4ad5-9539-e81b6b65a4ae</UserSecretsId>
     <NoWin32Manifest>true</NoWin32Manifest>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.5.1" />
@@ -34,5 +35,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\icon\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
   </ItemGroup>
 </Project>

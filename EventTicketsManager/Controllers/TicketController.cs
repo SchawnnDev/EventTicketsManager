@@ -7,6 +7,7 @@ using EventTicketsManager.Models;
 using EventTicketsManager.Services;
 using Library;
 using Library.Api;
+using Library.Pdf;
 using Library.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -457,5 +458,77 @@ namespace EventTicketsManager.Controllers
 				return Details(id, e.Message);
 			}
 		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult GeneratePdf(IFormCollection collection)
+		{
+			var id = 0;
+
+			try
+			{
+				using var db = new ServerContext();
+
+				if (collection.TryGetValue("TicketId", out var ticketIdStr))
+				{
+					if (int.TryParse(ticketIdStr, out var ticketId))
+						id = ticketId;
+					else return Index("Can't parse ticket id");
+				}
+				else return Index("Can't find ticket event id input");
+
+				if (!db.Tickets.Any(t => t.Id == id))
+					return Details(id);
+				//	if (db.QrCodes.Any(t => t.Ticket.Id == id))
+				//	return Details(id);
+
+				var saveableTicket = db.Tickets.Where(t => t.Id == id).Include(t => t.Event).Single();
+
+				if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User),
+					    db))
+					return Details(id);
+
+				var mail = new MailGenerator(saveableTicket, _converter);
+
+				// gen qr code
+				SaveableTicketQrCode ticketQrCode;
+
+				if (db.QrCodes.Any(t => t.Ticket.Id == id))
+				{
+					ticketQrCode = db.QrCodes.Where(t => t.Ticket.Id == id).Include(t => t.Ticket).Single();
+				}
+				else
+				{
+					var qrCode = new QrCodeGenerator(saveableTicket);
+
+					var saveableQrCode = qrCode.GenerateKeys();
+
+					saveableQrCode.CreatorId = _userManager.GetUserId(User);
+
+					db.Tickets.Attach(saveableQrCode.Ticket);
+
+					db.QrCodes.Add(saveableQrCode);
+
+					db.SaveChanges();
+
+					ticketQrCode = saveableQrCode;
+				}
+
+				var pdf = new PdfGenerator(ticketQrCode, _converter);
+
+				var pdfBytes = pdf.Generate();
+
+				var fileName = $"Billet0{saveableTicket.Id}_{saveableTicket.FirstName}{saveableTicket.LastName}.pdf";
+
+				return File(pdfBytes, "application/pdf", fileName);
+
+			}
+			catch (Exception e)
+			{
+				return Details(id, e.Message);
+			}
+
+		}
+
     }
 }
