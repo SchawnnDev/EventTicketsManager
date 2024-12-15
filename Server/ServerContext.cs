@@ -3,6 +3,7 @@ using System.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Server
 {
@@ -36,6 +37,12 @@ namespace Server
 		public DbSet<SaveableTicketQrCode> QrCodes { get; set; }
 
         public DbSet<SaveableLog> Logs { get; set; }
+        
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+	        optionsBuilder
+		        .ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

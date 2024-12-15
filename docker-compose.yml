@@ -1,0 +1,66 @@
+services:
+  tickets-api:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+    ports:
+      - "5000:8080"
+    networks:
+      - vps-network
+      - tickets-network
+    depends_on:
+      tickets-postgres:
+        condition: service_healthy
+
+  tickets-web:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: EventTicketsManager/Dockerfile
+    ports:
+      - "5001:8080"
+    networks:
+      - vps-network
+      - tickets-network
+    depends_on:
+      tickets-postgres:
+        condition: service_healthy
+
+  tickets-migrate:
+    build:
+      context: .
+      dockerfile: Server/Dockerfile
+    container_name: tickets-migrate
+    depends_on:
+      tickets-postgres:
+        condition: service_healthy
+    networks:
+      - tickets-network
+
+  tickets-postgres:
+    image: postgres:15
+    container_name: tickets-postgres
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    networks:
+      - tickets-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+networks:
+  vps-network:
+     name: "back_vps-network"
+     external: true
+  tickets-network:
+
+volumes:
+  postgres_data:
