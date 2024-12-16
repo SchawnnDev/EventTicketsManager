@@ -1,7 +1,12 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+RUN apt-get update -y
+RUN apt-get install wget libgdiplus -y
+RUN wget -P /app https://github.com/rdvojmoc/DinkToPdf/raw/master/v0.12.4/64%20bit/libwkhtmltox.dll
+RUN wget -P /app https://github.com/rdvojmoc/DinkToPdf/raw/master/v0.12.4/64%20bit/libwkhtmltox.dylib
+RUN wget -P /app https://github.com/rdvojmoc/DinkToPdf/raw/master/v0.12.4/64%20bit/libwkhtmltox.so
 USER $APP_UID
 WORKDIR /app
-EXPOSE 5000
+EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
