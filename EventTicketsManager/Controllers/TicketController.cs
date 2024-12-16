@@ -365,29 +365,68 @@ namespace EventTicketsManager.Controllers
         private ActionResult List(int id, string error)
         {
 
-            SaveableEvent saveableEvent = null;
+            SaveableEvent saveableEvent;
 	        var list = new List<SaveableTicket>();
-
+	        var ticketMailCounts = new Dictionary<int, int>();
+	        
 	        using (var db = new ServerContext())
             {
                 if (!DbUtils.IsEventExistingAndUserEventMember(id, _userManager.GetUserId(User), db)) return Index("Event is not existing or you're not owner/collaborator of this event");
                 saveableEvent = db.Events.Find(id);
                 list.AddRange(db.Tickets.Where(t => t.Event.Id == id).ToList());
+                
+                db.TicketUserMails.GroupBy(t => t.Ticket.Id).
+	                Select(t => new {t.Key, Count = t.Count()}).
+	                ToList().
+	                ForEach(t => ticketMailCounts.Add(t.Key, t.Count));
             }
-            return View("List", new TicketListModel(saveableEvent, list, error));
+	        
+	        var model = new TicketListModel(saveableEvent, list, error) { TicketMailCounts = ticketMailCounts };
+	        return View("List", model);
         }
 
 		public ActionResult Search(int id)
         {
             return View();
         }
+		
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+		public ActionResult MarkAsPaid(int id)
+		{
+			try
+			{
+				
+				using var db = new ServerContext();
+				if (!DbUtils.IsTicketExisting(id, db))
+					return Details(id, "Ticket does not exists.");
+				var ticket = db.Tickets.Include(t => t.Event).Single(t => t.Id == id);
+
+				if (!DbUtils.IsEventExistingAndUserEventMember(ticket.Event.Id, _userManager.GetUserId(User), db))
+					return Details(id, "Event is not existing or you're not owner/collaborator of this event");
+
+				ticket.HasPaid = true;
+				ticket.UpdaterId = _userManager.GetUserId(User);
+				ticket.UpdatedAt = DateTime.UtcNow;
+
+				db.SaveChanges();
+
+				Logger.SendLog($"Marked ticket n°{ticket.Id} as paid", _userManager.GetUserId(User), db);
+
+				return List(ticket.Event.Id);
+			}
+			catch (Exception e)
+			{
+				return Details(id, e.Message);
+			}
+		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult SendMail(IFormCollection collection)
 		{
 			var id = 0;
-
+			
 			try
 			{
 				using var db = new ServerContext();

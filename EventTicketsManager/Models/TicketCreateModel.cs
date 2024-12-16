@@ -1,27 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Server;
+﻿using Server;
 
-namespace EventTicketsManager.Models
+namespace EventTicketsManager.Models;
+
+public class TicketCreateModel
 {
-    public class TicketCreateModel
+    public TicketCreateModel(SaveableTicket ticket) : this(ticket, null)
     {
+    }
 
-        public SaveableTicket Ticket { get; set; }
+    public TicketCreateModel(SaveableTicket ticket, string error)
+    {
+        Ticket = ticket;
+        Error = error;
+    }
 
-        public string Error { get; set; }
+    public SaveableTicket Ticket { get; set; }
 
-        public TicketCreateModel(SaveableTicket ticket) : this(ticket, null) { }
+    public string Error { get; set; }
 
-        public TicketCreateModel(SaveableTicket ticket, string error)
-        {
-            Ticket = ticket;
-            Error = error;
-        }
-
-        public bool IsError() => !string.IsNullOrEmpty(Error);
-
+    public bool IsError()
+    {
+        return !string.IsNullOrEmpty(Error);
     }
 }

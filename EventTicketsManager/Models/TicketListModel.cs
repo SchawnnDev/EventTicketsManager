@@ -1,30 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Server;
 
-namespace EventTicketsManager.Models
+namespace EventTicketsManager.Models;
+
+public class TicketListModel
 {
-	public class TicketListModel
+    public TicketListModel(SaveableEvent saveableEvent, List<SaveableTicket> tickets) : this(saveableEvent, tickets,
+        null)
     {
-        public SaveableEvent Event { get; set; }
+    }
 
-		public List<SaveableTicket> Tickets { get; set; }
+    public TicketListModel(SaveableEvent saveableEvent, List<SaveableTicket> tickets, string error)
+    {
+        Tickets = tickets;
+        Error = error;
+        Event = saveableEvent;
+        TicketMailCounts = new Dictionary<int, int>();
+    }
 
-		public string Error { get; set; }
+    public SaveableEvent Event { get; set; }
 
-		public TicketListModel(SaveableEvent saveableEvent, List<SaveableTicket> tickets) : this(saveableEvent, tickets, null) { }
+    public List<SaveableTicket> Tickets { get; set; }
 
-		public TicketListModel(SaveableEvent saveableEvent, List<SaveableTicket> tickets, string error)
-		{
-			Tickets = tickets;
-			Error = error;
-            Event = saveableEvent;
-        }
+    public string Error { get; set; }
 
-		public bool IsError() => !string.IsNullOrEmpty(Error);
+    public Dictionary<int, int> TicketMailCounts { get; set; }
 
-	}
+    public bool IsError()
+    {
+        return !string.IsNullOrEmpty(Error);
+    }
 }
-

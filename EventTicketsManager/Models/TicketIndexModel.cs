@@ -1,27 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Server;
 
-namespace EventTicketsManager.Models
+namespace EventTicketsManager.Models;
+
+public class TicketIndexModel
 {
-    public class TicketIndexModel
+    public TicketIndexModel(List<SaveableEvent> userEvents) : this(userEvents, null)
     {
+    }
 
-        public List<SaveableEvent> UserEvents { get; set; }
+    public TicketIndexModel(List<SaveableEvent> userEvents, string error)
+    {
+        UserEvents = userEvents;
+        Error = error;
+    }
 
-        public string Error { get; set; }
+    public List<SaveableEvent> UserEvents { get; set; }
 
-        public TicketIndexModel(List<SaveableEvent> userEvents) : this(userEvents, null) { }
+    public string Error { get; set; }
 
-        public TicketIndexModel(List<SaveableEvent> userEvents, string error)
-        {
-            UserEvents = userEvents;
-            Error = error;
-        }
-
-        public bool IsError() => !string.IsNullOrEmpty(Error);
-
+    public bool IsError()
+    {
+        return !string.IsNullOrEmpty(Error);
     }
 }
