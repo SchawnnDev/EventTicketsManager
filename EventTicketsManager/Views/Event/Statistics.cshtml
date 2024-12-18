@@ -84,6 +84,35 @@
 
         </div> -->
     </div>
+    
+    <br class="separator"/>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Tickets creator stats</h4>
+            
+            
+            <table class="table">
+                <tr>
+                    <th>Creator</th>
+                    <th>Number of tickets</th>
+                    <th>Total not paid (€)</th>
+                    <th>Total paid (€)</th>
+                </tr>
+                @foreach (var creator in Model.TicketsCreator)
+                {
+                    <tr>
+                        <td>@creator.Key</td>
+                        <td>@creator.Value</td>
+                        <td>@Model.TicketsValueByCreator[creator.Key].Item1.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))</td>
+                        <td>@Model.TicketsValueByCreator[creator.Key].Item2.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))</td>
+                    </tr>
+                }
+            </table>
+            
+            
+        </div>
+    </div>
 
     <!--
     <div class="row">

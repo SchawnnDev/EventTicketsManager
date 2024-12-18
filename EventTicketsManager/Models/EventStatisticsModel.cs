@@ -18,7 +18,8 @@ public class EventStatisticsModel
     public Dictionary<string, int> TicketsCreator { get; set; }
     public Dictionary<PaymentMethod, int> TicketsPaymentMethod { get; set; }
     public decimal TicketsPayedTotalValue { get; set; }
-
+    public Dictionary<string, Tuple<int, int>> TicketsValueByCreator { get; set; }
+    
     public string GenTicketsByDate()
     {
         var builder = new StringBuilder("[");

@@ -181,14 +181,21 @@ namespace EventTicketsManager.Controllers
                                     email = db.Users.Where(e => e.Id == t.Key).Select(e => e.Email).First(),
                                     count = t.Count()
                                 })
-                            .ToDictionary(t => t.email, t => t.count)
-
+                            .ToDictionary(t => t.email, t => t.count),
                         /*       TicketsByDate = db.Tickets
                                     .Where(t=>t.Event.Id == id)
                                     .GroupBy(x => SqlFunctions.DateAdd("month",
                                         SqlFunctions.DateDiff("month", sqlMinDate, x.CreatedAt), sqlMinDate))
                                     .Select(t=> new {date=t.Key, count=t.Count()})
                                     .ToDictionary(t => t.date, t => t.count) */
+                        TicketsValueByCreator = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.CreatorId)
+                            .Select(t => new
+                            {
+                                email = db.Users.Where(e => e.Id == t.Key).Select(e => e.Email).First(),
+                                notPaid = t.Where(e => !e.HasPaid).Sum(e => e.ToPay),
+                                paid = t.Where(e => e.HasPaid).Sum(e => e.ToPay)
+                            })
+                            .ToDictionary(t => t.email, t => new Tuple<int, int>((int) t.notPaid, (int) t.paid))
                     };
                 }
             }
