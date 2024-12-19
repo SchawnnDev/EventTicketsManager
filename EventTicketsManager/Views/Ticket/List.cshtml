@@ -32,33 +32,16 @@
 <table class="table table-striped" id="ticketTable">
     <thead>
     <tr>
-        <th>
-            N°
-        </th>
-        <th>
-            Prénom
-        </th>
-        <th>
-            Nom
-        </th>
-        <th>
-            Email
-        </th>
-        <th>
-            Genre
-        </th>
-        <th>
-            A payé
-        </th>
-        <th>
-            Moyen de paiement
-        </th>
-        <th>
-            Mails envoyés
-        </th>
-        <th>
-            Actions
-        </th>
+    <tr>
+        <th data-sort="number">N°</th>
+        <th data-sort="text">Prénom</th>
+        <th data-sort="text">Nom</th>
+        <th data-sort="text">Email</th>
+        <th data-sort="text">Genre</th>
+        <th data-sort="text">A payé</th>
+        <th data-sort="text">Moyen de paiement</th>
+        <th data-sort="number">Mails envoyés</th>
+        <th data-sort="text">Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -119,6 +102,37 @@
             } else {
                 row.style.display = "none";
             }
+        });
+    });
+</script>
+
+<script>
+    document.querySelectorAll("#ticketTable th").forEach(header => {
+        header.addEventListener("click", function () {
+            const table = header.parentElement.parentElement.parentElement;
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            const index = Array.from(header.parentElement.children).indexOf(header);
+            const type = header.getAttribute("data-sort");
+            const isAscending = header.classList.contains("asc");
+
+            rows.sort((a, b) => {
+                const cellA = a.children[index].innerText.trim();
+                const cellB = b.children[index].innerText.trim();
+
+                if (type === "number") {
+                    return isAscending ? cellA - cellB : cellB - cellA;
+                } else {
+                    return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+                }
+            });
+
+            tbody.innerHTML = "";
+            rows.forEach(row => tbody.appendChild(row));
+
+            document.querySelectorAll("#ticketTable th").forEach(th => th.classList.remove("asc", "desc"));
+            header.classList.toggle("asc", !isAscending);
+            header.classList.toggle("desc", isAscending);
         });
     });
 </script>

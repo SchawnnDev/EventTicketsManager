@@ -87,7 +87,7 @@ namespace EventTicketsManager.Controllers
 
                 foreach (Gender gender in Enum.GetValues(typeof(Gender)))
                 {
-                    var genderInt = (int) gender;
+                    var genderInt = (int)gender;
                     model.TicketsGenreCount.Add(gender,
                         db.Tickets.Count(t => t.Event.Id == id && t.Gender == genderInt));
                 }
@@ -104,7 +104,7 @@ namespace EventTicketsManager.Controllers
         {
             var date = DateTime.UtcNow;
             date = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
-            return View(new SaveableEvent {Start = date, End = date.AddDays(1)});
+            return View(new SaveableEvent { Start = date, End = date.AddDays(1) });
         }
 
         // POST: Event/Create
@@ -155,7 +155,7 @@ namespace EventTicketsManager.Controllers
         public ActionResult Stats(int id)
         {
             EventStatisticsModel model = null;
-            var sqlMinDate = (DateTime) SqlDateTime.MinValue;
+            var sqlMinDate = (DateTime)SqlDateTime.MinValue;
 
             using (var db = new ServerContext())
             {
@@ -167,10 +167,10 @@ namespace EventTicketsManager.Controllers
                         TicketsCount = db.Tickets.Count(t => t.Event.Id == id),
                         TicketsPayedCount = db.Tickets.Count(t => t.HasPaid && t.Event.Id == id),
                         TicketsGender = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.Gender)
-                            .Select(t => new {gender = (Gender) t.Key, count = t.Count()})
+                            .Select(t => new { gender = (Gender)t.Key, count = t.Count() })
                             .ToDictionary(t => t.gender, t => t.count),
                         TicketsPaymentMethod = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.PaymentMethod)
-                            .Select(t => new {paymentMethod = (PaymentMethod) t.Key, count = t.Count()})
+                            .Select(t => new { paymentMethod = (PaymentMethod)t.Key, count = t.Count() })
                             .ToDictionary(t => t.paymentMethod, t => t.count),
                         //TicketsByDate = db.Tickets.Where(t => t.Event.Id == id).OrderBy(t => t.CreatedAt).Select(t => t.CreatedAt).ToList(),
                         TicketsTotalValue = db.Tickets.Where(t => t.Event.Id == id).Sum(t => t.ToPay),
@@ -195,7 +195,11 @@ namespace EventTicketsManager.Controllers
                                 notPaid = t.Where(e => !e.HasPaid).Sum(e => e.ToPay),
                                 paid = t.Where(e => e.HasPaid).Sum(e => e.ToPay)
                             })
-                            .ToDictionary(t => t.email, t => new Tuple<int, int>((int) t.notPaid, (int) t.paid))
+                            .ToDictionary(t => t.email,
+                                t => new Tuple<decimal, decimal, decimal>(t.notPaid, t.paid, t.notPaid + t.paid)),
+                        TicketsPrice = db.Tickets.Where(t => t.Event.Id == id).GroupBy(t => t.ToPay)
+                            .Select(t => new { price = t.Key, count = t.Count() })
+                            .ToDictionary(t => t.price, t => t.count)
                     };
                 }
             }
@@ -219,7 +223,7 @@ namespace EventTicketsManager.Controllers
                     var saveableEvent = db.Events.Single(t => t.Id == id);
 
                     if (saveableEvent.CreatorId != _userManager.GetUserId(User)
-                    ) // Check if editor is owner of the event.
+                       ) // Check if editor is owner of the event.
                         return View("Index");
 
                     FillEvent(saveableEvent, collection);
@@ -284,7 +288,6 @@ namespace EventTicketsManager.Controllers
         // GET: Event/Delete/5
         public ActionResult ExportTicketsCsv(int id, IFormCollection collection)
         {
-
             var list = new List<string>();
             var header = new List<string>();
 
@@ -311,33 +314,38 @@ namespace EventTicketsManager.Controllers
 
             using (var db = new ServerContext())
             {
-                foreach (var ticket in db.Tickets.Where(t=>t.Event.Id == id).ToList())
-                {//firstName,name,email,hasPaid,toPay,paymentMethod,scanned,updatedAt,createdAt
+                foreach (var ticket in db.Tickets.Where(t => t.Event.Id == id).ToList())
+                {
+                    //firstName,name,email,hasPaid,toPay,paymentMethod,scanned,updatedAt,createdAt
 
                     var ticketVal = new List<string>();
 
                     if (collection.ContainsKey("firstName"))
                         ticketVal.Add(ticket.FirstName);
-                    if(collection.ContainsKey("name"))
+                    if (collection.ContainsKey("name"))
                         ticketVal.Add(ticket.LastName);
                     if (collection.ContainsKey("email"))
                         ticketVal.Add(ticket.Email);
                     if (collection.ContainsKey("hasPaid"))
                         ticketVal.Add(ticket.HasPaid ? "oui" : "non");
                     if (collection.ContainsKey("toPay"))
-                        ticketVal.Add(ticket.ToPay.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")).Replace(",","."));
+                        ticketVal.Add(ticket.ToPay.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))
+                            .Replace(",", "."));
                     if (collection.ContainsKey("paymentMethod"))
                         ticketVal.Add(((PaymentMethod)ticket.PaymentMethod).ToString().ToLower());
                     if (collection.ContainsKey("scanned"))
-                        ticketVal.Add(db.TicketScans.Any(t=>t.Ticket.Id == ticket.Id) ? "oui" : "non");
+                        ticketVal.Add(db.TicketScans.Any(t => t.Ticket.Id == ticket.Id) ? "oui" : "non");
                     if (collection.ContainsKey("scannedAt"))
-                        ticketVal.Add(db.TicketScans.Any(t => t.Ticket.Id == ticket.Id) ? db.TicketScans.First(t=>t.Ticket.Id == ticket.Id).Date.ToString("g", CultureInfo.CreateSpecificCulture("fr-FR")) : "non scanné");
+                        ticketVal.Add(db.TicketScans.Any(t => t.Ticket.Id == ticket.Id)
+                            ? db.TicketScans.First(t => t.Ticket.Id == ticket.Id).Date
+                                .ToString("g", CultureInfo.CreateSpecificCulture("fr-FR"))
+                            : "non scanné");
                     if (collection.ContainsKey("updatedAt"))
                         ticketVal.Add(ticket.UpdatedAt.ToString("g", CultureInfo.CreateSpecificCulture("fr-FR")));
                     if (collection.ContainsKey("createdAt"))
                         ticketVal.Add(ticket.CreatedAt.ToString("g", CultureInfo.CreateSpecificCulture("fr-FR")));
 
-                    list.Add(string.Join(',',ticketVal));
+                    list.Add(string.Join(',', ticketVal));
                 }
             }
 
@@ -345,7 +353,7 @@ namespace EventTicketsManager.Controllers
             System.Net.Mime.ContentDisposition cd = new System.Net.Mime.ContentDisposition
             {
                 FileName = "exportedTickets.csv",
-                Inline = false  // false = prompt the user for downloading;  true = browser to try to show the file inline
+                Inline = false // false = prompt the user for downloading;  true = browser to try to show the file inline
             };
             Response.Headers.Append("Content-Disposition", cd.ToString());
             Response.Headers.Append("X-Content-Type-Options", "nosniff");
@@ -356,7 +364,6 @@ namespace EventTicketsManager.Controllers
                 stringBuilder.AppendLine(line);
 
             return File(Encoding.Unicode.GetBytes(stringBuilder.ToString()), "text/csv");
-
         }
 
         // POST: Event/Delete/5
@@ -563,7 +570,7 @@ namespace EventTicketsManager.Controllers
                 await db.SaveChangesAsync(); // Save to receive ID
 
                 var multipleMailGenerator = new MultipleMailGenerator(saveableEvent,
-                    qrCodes.Select(t => new MultipleMail {QrCode = t, Ticket = t.Ticket}).ToList(), _converter, db,
+                    qrCodes.Select(t => new MultipleMail { QrCode = t, Ticket = t.Ticket }).ToList(), _converter, db,
                     _configuration["SendGridKey"], _userManager.GetUserId(User));
 
                 try

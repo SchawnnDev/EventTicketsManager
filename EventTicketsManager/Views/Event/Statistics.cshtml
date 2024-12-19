@@ -39,7 +39,7 @@
 
     <br/>
 
-    <div class="row">
+    <div class="row mt-2">
 
         <div class="col-md-6">
 
@@ -59,10 +59,13 @@
         </div>
     </div>
 
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div id="ticketsPrice" style="margin: 0 auto"></div>
+        </div>
+    </div>
 
-    <br/>
-
-    <div class="row">
+    <div class="row mt-2">
 
         <div class="col-md-12">
 
@@ -87,10 +90,9 @@
     
     <br class="separator"/>
     
-    <div class="row">
+    <div class="row mt-2">
         <div class="col-md-12">
             <h4>Tickets creator stats</h4>
-            
             
             <table class="table">
                 <tr>
@@ -98,6 +100,7 @@
                     <th>Number of tickets</th>
                     <th>Total not paid (€)</th>
                     <th>Total paid (€)</th>
+                    <th>Expected total (€)</th>
                 </tr>
                 @foreach (var creator in Model.TicketsCreator)
                 {
@@ -106,6 +109,7 @@
                         <td>@creator.Value</td>
                         <td>@Model.TicketsValueByCreator[creator.Key].Item1.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))</td>
                         <td>@Model.TicketsValueByCreator[creator.Key].Item2.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))</td>
+                        <td>@Model.TicketsValueByCreator[creator.Key].Item3.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))</td>
                     </tr>
                 }
             </table>
@@ -255,6 +259,54 @@
                 ]
             });
     </script>
+    
+    <script type="text/javascript">
+        Highcharts.chart('ticketsPrice', {
+            chart: {
+                type: 'column',
+                backgroundColor: null
+            },
+            title: {
+                text: 'Tickets by Price'
+            },
+            xAxis: {
+                type: 'category',
+                title: {
+                    text: 'Price'
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Number of Tickets'
+                }
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.y}</b>'
+            },
+            exporting: {
+                enabled: false
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.y}'
+                    }
+                }
+            },
+            series: [{
+                name: 'Tickets',
+                colorByPoint: true,
+                data: [
+                    @foreach (var price in Model.TicketsPrice)
+                    {
+                        @:{ name: '@price.Key.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))', y: @price.Value },
+                    }
+                ]
+            }]
+        });
+    </script>
 
     <script type="text/javascript">
         Highcharts.chart('ticketsPaymentMethod',
@@ -360,6 +412,7 @@
                     }
                 ]
             });
+    
     </script>
 
 }
