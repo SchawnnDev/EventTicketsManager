@@ -28,7 +28,8 @@ namespace EventTicketsManager.Controllers
 
         private readonly IConverter _converter;
 
-        public TicketController(IConfiguration configuration, IConverter converter, UserManager<IdentityUser> userManager)
+        public TicketController(IConfiguration configuration, IConverter converter,
+            UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
             _configuration = configuration;
@@ -53,8 +54,8 @@ namespace EventTicketsManager.Controllers
                 var list = db.EventUsers.Where(t => t.UserId == userId && t.Event.Enabled)
                     .Select(t => t.Event).ToList();
 
-				foreach (var saveableEvent in list.Where(saveableEvent => events.All(t => t.Id != saveableEvent.Id)))
-				{
+                foreach (var saveableEvent in list.Where(saveableEvent => events.All(t => t.Id != saveableEvent.Id)))
+                {
                     saveableEvent.IsCreator = false;
 
                     if (events.All(t => t.Id != saveableEvent.Id))
@@ -68,7 +69,7 @@ namespace EventTicketsManager.Controllers
 
         public ActionResult Details(int id)
         {
-	        return Details(id, null);
+            return Details(id, null);
         }
 
         // GET: User/Details/5
@@ -84,14 +85,24 @@ namespace EventTicketsManager.Controllers
             {
                 if (!DbUtils.IsTicketExisting(id, db)) return List(id, "This ticket does not exists.");
 
-                ticket = db.Tickets.Include(t=>t.Event).Single(t=>t.Id == id);
-                creatorEmail = db.Users.Any(t=>t.Id == ticket.CreatorId) ? db.Users.Where(t => t.Id == ticket.CreatorId).Select(t => t.Email).Single() : "Not exists anymore";
-                scans = db.TicketScans.Where(t => t.Ticket.Id == id).OrderBy(t => t.Date).Select(t => new SaveableTicketScan(t.Ticket, db.Users.Any(e=>e.Id == t.CreatorId) ? db.Users.Where(e=>e.Id ==  t.CreatorId).Select(e=>e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
-                mails = db.TicketUserMails.Where(t => t.Ticket.Id == id).OrderBy(t => t.Date).Select(t => new SaveableTicketUserMail(t.Ticket, db.Users.Any(e => e.Id == t.CreatorId) ? db.Users.Where(e => e.Id == t.CreatorId).Select(e => e.Email).Single() : "User doesn't exist anymore.'", t.Date)).ToList();
-				qrCode = db.QrCodes.SingleOrDefault(t=>t.Ticket.Id == id);
+                ticket = db.Tickets.Include(t => t.Event).Single(t => t.Id == id);
+                creatorEmail = db.Users.Any(t => t.Id == ticket.CreatorId)
+                    ? db.Users.Where(t => t.Id == ticket.CreatorId).Select(t => t.Email).Single()
+                    : "Not exists anymore";
+                scans = db.TicketScans.Where(t => t.Ticket.Id == id).OrderBy(t => t.Date).Select(t =>
+                    new SaveableTicketScan(t.Ticket,
+                        db.Users.Any(e => e.Id == t.CreatorId)
+                            ? db.Users.Where(e => e.Id == t.CreatorId).Select(e => e.Email).Single()
+                            : "User doesn't exist anymore.'", t.Date)).ToList();
+                mails = db.TicketUserMails.Where(t => t.Ticket.Id == id).OrderBy(t => t.Date).Select(t =>
+                    new SaveableTicketUserMail(t.Ticket,
+                        db.Users.Any(e => e.Id == t.CreatorId)
+                            ? db.Users.Where(e => e.Id == t.CreatorId).Select(e => e.Email).Single()
+                            : "User doesn't exist anymore.'", t.Date)).ToList();
+                qrCode = db.QrCodes.SingleOrDefault(t => t.Ticket.Id == id);
             }
 
-			return View("Details", new TicketDetailsModel(ticket, scans, mails, qrCode, creatorEmail, error));
+            return View("Details", new TicketDetailsModel(ticket, scans, mails, qrCode, creatorEmail, error));
         }
 
         // GET: User/Create
@@ -104,7 +115,7 @@ namespace EventTicketsManager.Controllers
                 toPay = db.Events.Where(t => t.Id == id).Select(t => t.EnterPrice).Single();
             }
 
-            return View(new TicketCreateModel(new SaveableTicket {TicketEventId = id, ToPay = toPay}, null));
+            return View(new TicketCreateModel(new SaveableTicket { TicketEventId = id, ToPay = toPay }, null));
         }
 
         private ActionResult Create(SaveableTicket ticket, string error)
@@ -133,21 +144,20 @@ namespace EventTicketsManager.Controllers
 
                 using (var db = new ServerContext())
                 {
+                    var user = _userManager.GetUserId(User);
 
-	                var user = _userManager.GetUserId(User);
 
-
-	                if (!DbUtils.IsEventExistingAndUserEventMember(eventId, _userManager.GetUserId(User), db))
-						return List(eventId, "event is not existing or you're not owner/collaborator of this event");
+                    if (!DbUtils.IsEventExistingAndUserEventMember(eventId, _userManager.GetUserId(User), db))
+                        return List(eventId, "event is not existing or you're not owner/collaborator of this event");
 
                     FillTicket(saveableTicket, collection);
 
                     if (collection.TryGetValue("Email", out var email))
                     {
                         if (db.Tickets.Any(t =>
-                            t.Event.Id == eventId && t.Email.ToLower().Equals(email.ToString().ToLower())))
+                                t.Event.Id == eventId && t.Email.ToLower().Equals(email.ToString().ToLower())))
                         {
-	                        saveableTicket.TicketEventId = eventId;
+                            saveableTicket.TicketEventId = eventId;
                             return Create(saveableTicket, "This email is already taken!");
                         }
 
@@ -159,7 +169,7 @@ namespace EventTicketsManager.Controllers
                     }
 
                     if (!MailUtils.IsEmailValid(saveableTicket.Email))
-	                    return Create(saveableTicket, "Email is not valid!");
+                        return Create(saveableTicket, "Email is not valid!");
 
                     var saveableEvent = db.Events.Find(eventId);
 
@@ -170,7 +180,7 @@ namespace EventTicketsManager.Controllers
                     db.Tickets.Add(saveableTicket);
 
                     Logger.SendLog($"Created ticket for {saveableTicket.Email}", user, db);
-					db.SaveChanges();
+                    db.SaveChanges();
                 }
 
 
@@ -224,11 +234,11 @@ namespace EventTicketsManager.Controllers
                     db.Events.Attach(saveableTicket.Event);
 
                     Logger.SendLog($"Edited ticket n°{saveableTicket.Id}", _userManager.GetUserId(User), db);
-					db.SaveChanges();
+                    db.SaveChanges();
                 }
 
 
-                return List(eventId );
+                return List(eventId);
             }
             catch (Exception)
             {
@@ -268,306 +278,429 @@ namespace EventTicketsManager.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
         {
-	        // var eventId = 0;
-	      
-	        try
-	        {
-		        using var db = new ServerContext();
+            // var eventId = 0;
 
-				if(!DbUtils.IsTicketExisting(id, db))
-					return Details(id, "Ticket does not exists.");
-				var ticket = db.Tickets.Include(t=>t.Event).Single(t => t.Id == id);
-				
-				if(!DbUtils.IsEventExistingAndUserEventMember(ticket.Event.Id,_userManager.GetUserId(User), db))
-					return Details(id, "Event is not existing or you're not owner/collaborator of this event");
+            try
+            {
+                using var db = new ServerContext();
+
+                if (!DbUtils.IsTicketExisting(id, db))
+                    return Details(id, "Ticket does not exists.");
+                var ticket = db.Tickets.Include(t => t.Event).Single(t => t.Id == id);
+
+                if (!DbUtils.IsEventExistingAndUserEventMember(ticket.Event.Id, _userManager.GetUserId(User), db))
+                    return Details(id, "Event is not existing or you're not owner/collaborator of this event");
 
 
-				if (db.QrCodes.Any(t => t.Ticket.Id == id))
-					db.QrCodes.Remove(db.QrCodes.Single(t => t.Ticket.Id == id));
+                if (db.QrCodes.Any(t => t.Ticket.Id == id))
+                    db.QrCodes.Remove(db.QrCodes.Single(t => t.Ticket.Id == id));
 
-				db.TicketUserMails.RemoveRange(db.TicketUserMails.Where(t => t.Ticket.Id == id).ToArray());
+                db.TicketUserMails.RemoveRange(db.TicketUserMails.Where(t => t.Ticket.Id == id).ToArray());
 
-				db.TicketScans.RemoveRange(db.TicketScans.Where(t=>t.Ticket.Id == id).ToArray());
+                db.TicketScans.RemoveRange(db.TicketScans.Where(t => t.Ticket.Id == id).ToArray());
 
-		        db.Remove(ticket);
+                db.Remove(ticket);
 
-				Logger.SendLog($"Deleted ticket n°{ticket.Id}: {ticket.Email}",_userManager.GetUserId(User), db);
+                Logger.SendLog($"Deleted ticket n°{ticket.Id}: {ticket.Email}", _userManager.GetUserId(User), db);
 
-		        db.SaveChanges();
+                db.SaveChanges();
 
-		        return List(ticket.Event.Id);
-	        }
-	        catch (Exception e)
-	        {
-		        return Details(id, e.Message);
-	        }
-
+                return List(ticket.Event.Id);
+            }
+            catch (Exception e)
+            {
+                return Details(id, e.Message);
+            }
         }
 
-		// POST: User/GenerateKey/5
-		[HttpPost]
+        // POST: User/GenerateKey/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult GenerateKey(IFormCollection collection)
         {
-	        var id = 0;
+            var id = 0;
 
-	        try
-			{
-		        using var db = new ServerContext();
+            try
+            {
+                using var db = new ServerContext();
 
 
-		        if (collection.TryGetValue("TicketId", out var ticketIdStr))
-		        {
-			        if (int.TryParse(ticketIdStr, out var ticketId))
-				        id = ticketId;
-			        else return Index("Can't parse ticket id");
-		        }
-		        else return Index("Can't find ticket event id input");
+                if (collection.TryGetValue("TicketId", out var ticketIdStr))
+                {
+                    if (int.TryParse(ticketIdStr, out var ticketId))
+                        id = ticketId;
+                    else return Index("Can't parse ticket id");
+                }
+                else return Index("Can't find ticket event id input");
 
-				if (!db.Tickets.Any(t => t.Id == id))
-			        return Details(id);
-		        if (db.QrCodes.Any(t => t.Ticket.Id == id))
-			        return Details(id);
+                if (!db.Tickets.Any(t => t.Id == id))
+                    return Details(id);
+                if (db.QrCodes.Any(t => t.Ticket.Id == id))
+                    return Details(id);
 
-		        var saveableTicket = db.Tickets.Where(t=>t.Id == id).Include(t=>t.Event).Single();
+                var saveableTicket = db.Tickets.Where(t => t.Id == id).Include(t => t.Event).Single();
 
-		        if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User), db))
-			        return Details(id);
+                if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User),
+                        db))
+                    return Details(id);
 
-		        var qrCode = new QrCodeGenerator(saveableTicket);
+                var qrCode = new QrCodeGenerator(saveableTicket);
 
-		        var saveableQrCode = qrCode.GenerateKeys();
+                var saveableQrCode = qrCode.GenerateKeys();
 
-		        saveableQrCode.CreatorId = _userManager.GetUserId(User);
-		        
-		        db.Tickets.Attach(saveableQrCode.Ticket);
+                saveableQrCode.CreatorId = _userManager.GetUserId(User);
 
-		        db.QrCodes.Add(saveableQrCode);
+                db.Tickets.Attach(saveableQrCode.Ticket);
 
-		        Logger.SendLog($"Generated QR Code for ticket n°{saveableQrCode.Ticket.Id}", _userManager.GetUserId(User), db);
+                db.QrCodes.Add(saveableQrCode);
 
-				db.SaveChanges();
+                Logger.SendLog($"Generated QR Code for ticket n°{saveableQrCode.Ticket.Id}",
+                    _userManager.GetUserId(User), db);
 
-		        return Details(id);
-	        }
-	        catch (Exception)
-	        {
-		        return Details(id);
-	        }
+                db.SaveChanges();
+
+                return Details(id);
+            }
+            catch (Exception)
+            {
+                return Details(id);
+            }
         }
-	
 
-		public ActionResult List(int id)
+
+        public ActionResult List(int id)
         {
-	        return List(id, null);
+            return List(id, null);
         }
 
         private ActionResult List(int id, string error)
         {
-
             SaveableEvent saveableEvent;
-	        var list = new List<SaveableTicket>();
-	        var ticketMailCounts = new Dictionary<int, int>();
-	        
-	        using (var db = new ServerContext())
+            var list = new List<SaveableTicket>();
+            var ticketMailCounts = new Dictionary<int, int>();
+
+            using (var db = new ServerContext())
             {
-                if (!DbUtils.IsEventExistingAndUserEventMember(id, _userManager.GetUserId(User), db)) return Index("Event is not existing or you're not owner/collaborator of this event");
+                if (!DbUtils.IsEventExistingAndUserEventMember(id, _userManager.GetUserId(User), db))
+                    return Index("Event is not existing or you're not owner/collaborator of this event");
                 saveableEvent = db.Events.Find(id);
                 list.AddRange(db.Tickets.Where(t => t.Event.Id == id).ToList());
-                
-                db.TicketUserMails.GroupBy(t => t.Ticket.Id).
-	                Select(t => new {t.Key, Count = t.Count()}).
-	                ToList().
-	                ForEach(t => ticketMailCounts.Add(t.Key, t.Count));
+
+                db.TicketUserMails.GroupBy(t => t.Ticket.Id).Select(t => new { t.Key, Count = t.Count() }).ToList()
+                    .ForEach(t => ticketMailCounts.Add(t.Key, t.Count));
             }
-	        
-	        var model = new TicketListModel(saveableEvent, list, error) { TicketMailCounts = ticketMailCounts };
-	        return View("List", model);
+
+            var model = new TicketListModel(saveableEvent, list, error) { TicketMailCounts = ticketMailCounts };
+            return View("List", model);
         }
 
-		public ActionResult Search(int id)
+        public ActionResult Search(int id)
         {
             return View();
         }
-		
+
+        private TicketScanStatsModel GetStats(int id)
+        {
+            using var db = new ServerContext();
+            return new TicketScanStatsModel
+            {
+                TicketsCount = db.Tickets.Count(t => t.Event.Id == id),
+                ScannedTicketsCount = db.Tickets.Count(t =>
+                    t.Event.Id == id && db.TicketScans.Any(e => e.Ticket.Id == t.Id)),
+                PayedTicketsCount = db.Tickets.Count(t => t.Event.Id == id && t.HasPaid),
+                ScannedPayedTicketsCount = db.Tickets.Count(t =>
+                    t.Event.Id == id && t.HasPaid && db.TicketScans.Any(e => e.Ticket.Id == t.Id))
+            };
+        }
+
+        public ActionResult Scan(int id, string error)
+        {
+            using (var db = new ServerContext())
+            {
+                if (!DbUtils.IsEventExistingAndUserEventMember(id, _userManager.GetUserId(User), db))
+                    return Index("Event is not existing or you're not owner/collaborator of this event");
+            }
+
+            return View("Scan", new TicketScanModel(id) { Stats = GetStats(id) });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-		public ActionResult MarkAsPaid(int id)
-		{
-			try
-			{
-				
-				using var db = new ServerContext();
-				if (!DbUtils.IsTicketExisting(id, db))
-					return Details(id, "Ticket does not exists.");
-				var ticket = db.Tickets.Include(t => t.Event).Single(t => t.Id == id);
+        public ActionResult ScanTicket(int id, string input)
+        {
+            // check if event exists and user is owner/collaborator
+            using (var db = new ServerContext())
+            {
+                if (!DbUtils.IsEventExistingAndUserEventMember(id, _userManager.GetUserId(User), db))
+                    return Index("Event is not existing or you're not owner/collaborator of this event");
+            }
 
-				if (!DbUtils.IsEventExistingAndUserEventMember(ticket.Event.Id, _userManager.GetUserId(User), db))
-					return Details(id, "Event is not existing or you're not owner/collaborator of this event");
+            if (string.IsNullOrWhiteSpace(input))
+                return Scan(id, null);
 
-				ticket.HasPaid = true;
-				ticket.UpdaterId = _userManager.GetUserId(User);
-				ticket.UpdatedAt = DateTime.UtcNow;
 
-				db.SaveChanges();
+            using (var db = new ServerContext())
+            {
+                try
+                {
+                    var firstDecode = input.Base64Decode();
+                    var split = firstDecode.Split("§§");
 
-				Logger.SendLog($"Marked ticket n°{ticket.Id} as paid", _userManager.GetUserId(User), db);
+                    var qrCodeId = int.Parse(split[0]);
+                    var qrCode = split[1];
 
-				return List(ticket.Event.Id);
-			}
-			catch (Exception e)
-			{
-				return Details(id, e.Message);
-			}
-		}
+                    if (!db.QrCodes.Any(t => t.Id == qrCodeId))
+                        return Scan(id, "QrCode does not exists.");
 
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public ActionResult SendMail(IFormCollection collection)
-		{
-			var id = 0;
-			
-			try
-			{
-				using var db = new ServerContext();
+                    var saveableQrCode = db.QrCodes.Single(t => t.Id == qrCodeId);
 
-				if (collection.TryGetValue("TicketId", out var ticketIdStr))
-				{
-					if (int.TryParse(ticketIdStr, out var ticketId))
-						id = ticketId;
-					else return Index("Can't parse ticket id");
-				}
-				else return Index("Can't find ticket event id input");
+                    var qrCodeGenerator = new QrCodeGenerator(saveableQrCode);
 
-				if (!db.Tickets.Any(t => t.Id == id))
-					return Details(id);
-				//	if (db.QrCodes.Any(t => t.Ticket.Id == id))
-				//	return Details(id);
+                    var decodedString = qrCodeGenerator.Decode(qrCode);
 
-				var saveableTicket = db.Tickets.Where(t => t.Id == id).Include(t => t.Event).Single();
+                    var decodedSplit = decodedString.Split("§§");
 
-				if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User), db))
-					return Details(id);
+                    var ticketId = int.Parse(decodedSplit[0]);
+                    var ticketEmail = decodedSplit[1];
 
-				var mail = new MailGenerator(saveableTicket, _converter);
+                    if (!db.Tickets.Any(t => t.Id == ticketId && t.Email.Equals(ticketEmail)))
+                        return Scan(id, "Ticket id does not match with email");
 
-				// gen qr code
-				SaveableTicketQrCode ticketQrCode;
+                    var ticket = db.Tickets.Single(t => t.Id == ticketId && t.Email.Equals(ticketEmail));
 
-				if (db.QrCodes.Any(t => t.Ticket.Id == id))
-				{
-					ticketQrCode = db.QrCodes.Where(t => t.Ticket.Id == id).Include(t => t.Ticket).Single();
-				}
-				else
-				{
-					var qrCode = new QrCodeGenerator(saveableTicket);
+                    var alreadyScanned = db.TicketScans.Any(t => t.Ticket.Id == ticket.Id);
 
-					var saveableQrCode = qrCode.GenerateKeys();
+                    var lastScan = null as DateTime?;
 
-					saveableQrCode.CreatorId = _userManager.GetUserId(User);
+                    if (alreadyScanned)
+                        lastScan = db.TicketScans.Where(t => t.Ticket.Id == ticket.Id).OrderByDescending(t => t.Date)
+                            .Select(t => t.Date).FirstOrDefault();
 
-					db.Tickets.Attach(saveableQrCode.Ticket);
+                    db.TicketScans.Add(new SaveableTicketScan(ticket, _userManager.GetUserId(User), DateTime.UtcNow));
+                    db.SaveChanges();
 
-					db.QrCodes.Add(saveableQrCode);
+                    return View("Scan",
+                        new TicketScanModel(id)
+                        {
+                            Ticket = ticket, Scanned = true, LastScan = lastScan, Error = null, Stats = GetStats(id)
+                        });
+                }
+                catch (Exception e)
+                {
+                    return Scan(id, e.Message);
+                }
+            }
+        }
 
-					db.SaveChanges();
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult MarkAsPaid(int id)
+        {
+            try
+            {
+                using var db = new ServerContext();
+                if (!DbUtils.IsTicketExisting(id, db))
+                    return Details(id, "Ticket does not exists.");
+                var ticket = db.Tickets.Include(t => t.Event).Single(t => t.Id == id);
 
-					ticketQrCode = saveableQrCode;
-				}
+                if (!DbUtils.IsEventExistingAndUserEventMember(ticket.Event.Id, _userManager.GetUserId(User), db))
+                    return Details(id, "Event is not existing or you're not owner/collaborator of this event");
 
-				try
-				{
-					mail.SendMailAsync(Environment.GetEnvironmentVariable("SENDGRID_API_KEY"), ticketQrCode).Wait(TimeSpan.FromSeconds(5));
-				}
-				catch (OperationCanceledException ex)
-				{
-					return Details(id, ex.Message);
-				}
+                ticket.HasPaid = true;
+                ticket.UpdaterId = _userManager.GetUserId(User);
+                ticket.UpdatedAt = DateTime.UtcNow;
 
-				db.TicketUserMails.Add(new SaveableTicketUserMail(saveableTicket, _userManager.GetUserId(User), DateTime.UtcNow));
+                db.SaveChanges();
 
-				Logger.SendLog($"Sent mail for ticket n°{saveableTicket.Id}", _userManager.GetUserId(User), db);
+                Logger.SendLog($"Marked ticket n°{ticket.Id} as paid", _userManager.GetUserId(User), db);
 
-				db.SaveChanges();
+                return List(ticket.Event.Id);
+            }
+            catch (Exception e)
+            {
+                return Details(id, e.Message);
+            }
+        }
 
-				return Details(id);
-			}
-			catch (Exception e)
-			{
-				return Details(id, e.Message);
-			}
-		}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult MarkScanAsPaid(int id)
+        {
+            try
+            {
+                using var db = new ServerContext();
+                if (!DbUtils.IsTicketExisting(id, db))
+                    return Scan(id, "Ticket does not exists.");
+                var ticket = db.Tickets.Include(t => t.Event).Single(t => t.Id == id);
 
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public ActionResult GeneratePdf(IFormCollection collection)
-		{
-			var id = 0;
+                if (!DbUtils.IsEventExistingAndUserEventMember(ticket.Event.Id, _userManager.GetUserId(User), db))
+                    return Scan(id, "Event is not existing or you're not owner/collaborator of this event");
 
-			try
-			{
-				using var db = new ServerContext();
+                ticket.HasPaid = true;
+                ticket.UpdaterId = _userManager.GetUserId(User);
+                ticket.UpdatedAt = DateTime.UtcNow;
 
-				if (collection.TryGetValue("TicketId", out var ticketIdStr))
-				{
-					if (int.TryParse(ticketIdStr, out var ticketId))
-						id = ticketId;
-					else return Index("Can't parse ticket id");
-				}
-				else return Index("Can't find ticket event id input");
+                db.SaveChanges();
 
-				if (!db.Tickets.Any(t => t.Id == id))
-					return Details(id);
-				//	if (db.QrCodes.Any(t => t.Ticket.Id == id))
-				//	return Details(id);
+                Logger.SendLog($"Marked scanned ticket n°{ticket.Id} as paid", _userManager.GetUserId(User), db);
 
-				var saveableTicket = db.Tickets.Where(t => t.Id == id).Include(t => t.Event).Single();
+                return View("Scan",
+                    new TicketScanModel(ticket.Event.Id)
+                        { Ticket = ticket, Scanned = true, Error = null, Stats = GetStats(id) });
+            }
+            catch (Exception e)
+            {
+                return Scan(id, e.Message);
+            }
+        }
 
-				if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User),
-					    db))
-					return Details(id);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SendMail(IFormCollection collection)
+        {
+            var id = 0;
 
-				var mail = new MailGenerator(saveableTicket, _converter);
+            try
+            {
+                using var db = new ServerContext();
 
-				// gen qr code
-				SaveableTicketQrCode ticketQrCode;
+                if (collection.TryGetValue("TicketId", out var ticketIdStr))
+                {
+                    if (int.TryParse(ticketIdStr, out var ticketId))
+                        id = ticketId;
+                    else return Index("Can't parse ticket id");
+                }
+                else return Index("Can't find ticket event id input");
 
-				if (db.QrCodes.Any(t => t.Ticket.Id == id))
-				{
-					ticketQrCode = db.QrCodes.Where(t => t.Ticket.Id == id).Include(t => t.Ticket).Single();
-				}
-				else
-				{
-					var qrCode = new QrCodeGenerator(saveableTicket);
+                if (!db.Tickets.Any(t => t.Id == id))
+                    return Details(id);
+                //	if (db.QrCodes.Any(t => t.Ticket.Id == id))
+                //	return Details(id);
 
-					var saveableQrCode = qrCode.GenerateKeys();
+                var saveableTicket = db.Tickets.Where(t => t.Id == id).Include(t => t.Event).Single();
 
-					saveableQrCode.CreatorId = _userManager.GetUserId(User);
+                if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User),
+                        db))
+                    return Details(id);
 
-					db.Tickets.Attach(saveableQrCode.Ticket);
+                var mail = new MailGenerator(saveableTicket, _converter);
 
-					db.QrCodes.Add(saveableQrCode);
+                // gen qr code
+                SaveableTicketQrCode ticketQrCode;
 
-					db.SaveChanges();
+                if (db.QrCodes.Any(t => t.Ticket.Id == id))
+                {
+                    ticketQrCode = db.QrCodes.Where(t => t.Ticket.Id == id).Include(t => t.Ticket).Single();
+                }
+                else
+                {
+                    var qrCode = new QrCodeGenerator(saveableTicket);
 
-					ticketQrCode = saveableQrCode;
-				}
+                    var saveableQrCode = qrCode.GenerateKeys();
 
-				var pdf = new PdfGenerator(ticketQrCode, _converter);
+                    saveableQrCode.CreatorId = _userManager.GetUserId(User);
 
-				var pdfBytes = pdf.Generate();
+                    db.Tickets.Attach(saveableQrCode.Ticket);
 
-				var fileName = $"Billet0{saveableTicket.Id}_{saveableTicket.FirstName}{saveableTicket.LastName}.pdf";
+                    db.QrCodes.Add(saveableQrCode);
 
-				return File(pdfBytes, "application/pdf", fileName);
+                    db.SaveChanges();
 
-			}
-			catch (Exception e)
-			{
-				return Details(id, e.Message);
-			}
+                    ticketQrCode = saveableQrCode;
+                }
 
-		}
+                try
+                {
+                    mail.SendMailAsync(Environment.GetEnvironmentVariable("SENDGRID_API_KEY"), ticketQrCode)
+                        .Wait(TimeSpan.FromSeconds(5));
+                }
+                catch (OperationCanceledException ex)
+                {
+                    return Details(id, ex.Message);
+                }
 
+                db.TicketUserMails.Add(new SaveableTicketUserMail(saveableTicket, _userManager.GetUserId(User),
+                    DateTime.UtcNow));
+
+                Logger.SendLog($"Sent mail for ticket n°{saveableTicket.Id}", _userManager.GetUserId(User), db);
+
+                db.SaveChanges();
+
+                return Details(id);
+            }
+            catch (Exception e)
+            {
+                return Details(id, e.Message);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GeneratePdf(IFormCollection collection)
+        {
+            var id = 0;
+
+            try
+            {
+                using var db = new ServerContext();
+
+                if (collection.TryGetValue("TicketId", out var ticketIdStr))
+                {
+                    if (int.TryParse(ticketIdStr, out var ticketId))
+                        id = ticketId;
+                    else return Index("Can't parse ticket id");
+                }
+                else return Index("Can't find ticket event id input");
+
+                if (!db.Tickets.Any(t => t.Id == id))
+                    return Details(id);
+                //	if (db.QrCodes.Any(t => t.Ticket.Id == id))
+                //	return Details(id);
+
+                var saveableTicket = db.Tickets.Where(t => t.Id == id).Include(t => t.Event).Single();
+
+                if (!DbUtils.IsEventExistingAndUserEventMember(saveableTicket.Event.Id, _userManager.GetUserId(User),
+                        db))
+                    return Details(id);
+
+                var mail = new MailGenerator(saveableTicket, _converter);
+
+                // gen qr code
+                SaveableTicketQrCode ticketQrCode;
+
+                if (db.QrCodes.Any(t => t.Ticket.Id == id))
+                {
+                    ticketQrCode = db.QrCodes.Where(t => t.Ticket.Id == id).Include(t => t.Ticket).Single();
+                }
+                else
+                {
+                    var qrCode = new QrCodeGenerator(saveableTicket);
+
+                    var saveableQrCode = qrCode.GenerateKeys();
+
+                    saveableQrCode.CreatorId = _userManager.GetUserId(User);
+
+                    db.Tickets.Attach(saveableQrCode.Ticket);
+
+                    db.QrCodes.Add(saveableQrCode);
+
+                    db.SaveChanges();
+
+                    ticketQrCode = saveableQrCode;
+                }
+
+                var pdf = new PdfGenerator(ticketQrCode, _converter);
+
+                var pdfBytes = pdf.Generate();
+
+                var fileName = $"Billet0{saveableTicket.Id}_{saveableTicket.FirstName}{saveableTicket.LastName}.pdf";
+
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (Exception e)
+            {
+                return Details(id, e.Message);
+            }
+        }
     }
 }

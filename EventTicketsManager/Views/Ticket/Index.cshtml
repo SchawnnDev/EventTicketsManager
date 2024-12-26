@@ -35,7 +35,8 @@
         <div class="card-body">
             @Html.ActionLink("Créer un billet", "Create", new { id = item.Id }, new { @class = "btn btn-light btn-lg btn-block" })
             @Html.ActionLink("Afficher les billets", "List", new { id = item.Id }, new { @class = "btn btn-light btn-lg btn-block" })
-            @Html.ActionLink("Chercher un billet", "Search", new { id = item.Id }, new { @class = "btn btn-light btn-lg btn-block" })
+            @* @Html.ActionLink("Chercher un billet", "Search", new { id = item.Id }, new { @class = "btn btn-light btn-lg btn-block" }) *@
+            @Html.ActionLink("Scanner un billet", "Scan", new { id = item.Id }, new { @class = "btn btn-light btn-lg btn-block" })
         </div>
 
     </div>

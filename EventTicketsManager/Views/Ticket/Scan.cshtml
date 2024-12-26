@@ -1,0 +1,118 @@
+@using System.Globalization
+@model TicketScanModel
+
+@{
+    ViewData["Title"] = "Détails d'un billet";
+}
+
+@section Styles
+{
+    <style>
+        #reader {
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+    </style>
+}
+
+<h1>Scanner un billet</h1>
+
+@if (Model.IsError())
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @Model.Error
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<div class="container">
+    @if (Model.Scanned && Model.Ticket != null)
+    {
+        <div class="mb-4 card">
+            <div class="card-header">
+                Billet scanné
+            </div>
+
+            <div class="card-body">
+                <h4>@Model.Ticket.FirstName @Model.Ticket.LastName</h4>
+                
+                @if (Model.LastScan != null)
+                {
+                    <h5>Dernier scan: @Model.LastScan?.ToString("G", CultureInfo.CurrentCulture)</h5>
+                }
+                else
+                {
+                    <h5>✅ Premier scan</h5>
+                }
+                
+                <h5>Prix: @Model.Ticket.ToPay.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR"))</h5>
+                
+                @if (Model.Ticket.HasPaid)
+                {
+                    <h2><span class="badge badge-success">Payé</span></h2>
+                }
+                else
+                {
+                    <h2><span class="badge badge-danger">Non payé</span></h2>
+                    
+                    <form asp-action="MarkScanAsPaid" method="post" style="display: inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Ticket.Id" />
+                        <button type="submit" class="btn btn-warning mr-2">A reglé</button>
+                    </form>
+                }
+            </div>
+           
+        </div>
+    }
+    
+    @if (Model.Stats != null)
+    {
+        <div class="mb-4 card">
+            <div class="card-header">
+                Statistiques
+            </div>
+
+            <div class="card-body">
+                <h5>Scans: @Model.Stats.ScannedTicketsCount / @Model.Stats.TicketsCount (@Model.Stats.CalculateScannedTicketsCountPercentage() %)</h5>
+                <h5>Payés: @Model.Stats.PayedTicketsCount / @Model.Stats.TicketsCount (@Model.Stats.CalculatePayedTicketsCountPercentage() %)</h5>
+                <h5>Scannés & payés: @Model.Stats.ScannedPayedTicketsCount / @Model.Stats.TicketsCount (@Model.Stats.CalculateScannedPayedTicketsCountPercentage() %)</h5>
+            </div>
+        </div>
+    }
+    
+    <div id="qr-reader" style="width: 100%"></div>
+</div>
+
+<form id="scanForm" method="post" asp-action="ScanTicket">
+    <input type="hidden" id="eventId" name="id" value="@Model.EventId" />
+    <input type="hidden" id="scanInput" name="input"/>
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts
+{ 
+    @Html.Raw("<script src='https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js'></script>")
+
+    <script>
+        let isSubmitting = false;
+        
+        function onScanSuccess(decodedText, decodedResult) {
+            if (isSubmitting) {
+                return;
+            }
+            isSubmitting = true;
+            document.getElementById('scanInput').value = decodedText;
+            document.getElementById('scanForm').submit();
+        }
+        
+        var html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+    
+    
+    </script>
+}
