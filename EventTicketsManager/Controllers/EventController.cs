@@ -571,7 +571,7 @@ namespace EventTicketsManager.Controllers
 
                 var multipleMailGenerator = new MultipleMailGenerator(saveableEvent,
                     qrCodes.Select(t => new MultipleMail { QrCode = t, Ticket = t.Ticket }).ToList(), _converter, db,
-                    _configuration["SendGridKey"], _userManager.GetUserId(User));
+                    Environment.GetEnvironmentVariable("SENDGRID_API_KEY"), _userManager.GetUserId(User));
 
                 try
                 {
